@@ -50,17 +50,13 @@
   </div>
   <div class="bottom-nav">
     <a href="dashboard.html" class="nav-btn"><span class="nav-icon">🏠</span>Home</a>
-    <a href="learn.html" class="nav-btn"><span class="nav-icon"></span>Learn</a>
+    <a href="learn.html" class="nav-btn"><span class="nav-icon">📚</span>Learn</a>
     <a href="cbt.html" class="nav-btn"><span class="nav-icon">⚡</span>CBT</a>
     <a href="ai.html" class="nav-btn active"><span class="nav-icon">💬</span>AI</a>
     <a href="profile.html" class="nav-btn"><span class="nav-icon">👤</span>Profile</a>
   </div>
 
   <script>
-    // 👇 PASTE YOUR GROQ API KEY INSIDE THE QUOTES BELOW 👇
-    const GROQ_API_KEY = "PASTE_YOUR_GROQ_KEY_HERE"; 
-    const MODEL = "llama3-8b-8192"; // Fast and free model
-
     async function sendMessage() {
       const input = document.getElementById('user-input');
       const chatBox = document.getElementById('chat-box');
@@ -84,23 +80,12 @@
       chatBox.appendChild(typingMsg);
       chatBox.scrollTop = chatBox.scrollHeight;
 
-      // 3. Call the Real AI
+      // 3. Call our Secret Messenger (Vercel API)
       try {
-        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        const response = await fetch("/api/chat", {
           method: "POST",
-          headers: {
-            "Authorization": `Bearer ${GROQ_API_KEY}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            model: MODEL,
-            messages: [
-              {
-                role: "system",                 content: "You are Professor LIGHT, a friendly and helpful AI teacher for Nigerian students preparing for WAEC, NECO, and UTME. Explain things simply, step-by-step, use emojis, and be encouraging. If they ask in Pidgin English, reply in Pidgin."
-              },
-              { role: "user", content: text }
-            ]
-          })
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: text })
         });
 
         const data = await response.json();
@@ -108,28 +93,25 @@
         // Remove typing bubble
         chatBox.removeChild(typingMsg);
 
-        if (data.choices && data.choices[0]) {
-          const aiReply = data.choices[0].message.content;
+        if (data.reply) {
           const aiMsg = document.createElement('div');
           aiMsg.className = 'message ai';
-          aiMsg.innerText = aiReply;
-          chatBox.appendChild(aiMsg);
+          aiMsg.innerText = data.reply;          chatBox.appendChild(aiMsg);
         } else {
-          throw new Error("No response from AI");
+          throw new Error("No response");
         }
 
       } catch (error) {
         chatBox.removeChild(typingMsg);
         const errorMsg = document.createElement('div');
         errorMsg.className = 'message ai';
-        errorMsg.innerHTML = "Oops! I couldn't connect to the brain. 🤒 <br><i>(Check if your API key is correct in the code!)</i>";
+        errorMsg.innerHTML = "Oops! I couldn't connect to the brain. ";
         chatBox.appendChild(errorMsg);
       }
       
       chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    // Allow pressing "Enter" to send
     document.getElementById('user-input').addEventListener('keypress', function (e) {
       if (e.key === 'Enter') sendMessage();
     });
