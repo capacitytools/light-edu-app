@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Teacher - Light Edu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { background-color: #E5E7EB; font-family: Arial, sans-serif; margin: 0; padding-bottom: 140px; }
+    .header { background-color: #1E3A8A; color: white; padding: 15px; display: flex; align-items: center; }
+    .header h1 { font-size: 18px; margin: 0; margin-left: 10px; }
+    
+    .chat-area { padding: 15px; }
+    .message {
+      background: white;
+      padding: 12px;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      max-width: 80%;
+      font-size: 15px;
+      color: #1E3A8A;
+    }
+    .message.ai { background: white; border-top-left-radius: 0; }
+    
+    .input-area {
+      position: fixed; bottom: 60px; left: 0; right: 0;
+      background: white; padding: 10px; display: flex;
+      border-top: 1px solid #ccc;
+    }
+    .input-area input {
+      flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 20px; font-size: 16px;
+    }
+    .input-area button {
+      background: #DC2626; color: white; border: none; padding: 10px 15px; 
+      border-radius: 20px; margin-left: 10px; font-weight: bold;
+    }
+
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: white; display: flex; justify-content: space-around;
+      padding: 10px 0; border-top: 2px solid #1E3A8A;
+    }
+    .nav-btn { text-align: center; color: #6B7280; text-decoration: none; font-size: 11px; flex: 1; }
+    .nav-btn.active { color: #1E3A8A; font-weight: bold; }
+    .nav-icon { font-size: 24px; display: block; margin-bottom: 3px; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <span style="font-size: 24px;"></span>
+    <h1>Professor LIGHT</h1>
+  </div>
+
+  <div class="chat-area">
+    <div class="message ai">
+      Hello! I am Professor LIGHT. 🛡️<br><br>
+      I can help you solve Math, explain Science, or generate a quiz. What are we learning today?
+    </div>
+  </div>
+
+  <div class="input-area">
+    <input type="text" placeholder="Ask a question...">
+    <button>Send</button>
+  </div>
+
+  <!-- Bottom Nav (AI is active) -->
+  <div class="bottom-nav">
+    <a href="dashboard.html" class="nav-btn"><span class="nav-icon">🏠</span>Home</a>
+    <a href="learn.html" class="nav-btn"><span class="nav-icon">📚</span>Learn</a>
+    <a href="#" class="nav-btn"><span class="nav-icon"></span>CBT</a>
+    <a href="ai.html" class="nav-btn active"><span class="nav-icon">💬</span>AI</a>
+    <a href="#" class="nav-btn"><span class="nav-icon">👤</span>Profile</a>
+  </div>
+
+</body>
+</html>
