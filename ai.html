@@ -5,22 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background-color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; color: #1E293B; padding-bottom: 140px; }
+    body { background-color: #F8FAFC; font-family: Arial, sans-serif; padding-bottom: 140px; }
     
-    .header { background: linear-gradient(135deg, #1E3A8A 0%, #172554 100%); color: white; padding: 15px 20px; display: flex; align-items: center; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; }
+    .header { background: #1E3A8A; color: white; padding: 15px 20px; display: flex; align-items: center; }
     .header-icon { font-size: 28px; margin-right: 10px; }
     .header h1 { font-size: 18px; margin: 0; }
-    .header-status { font-size: 12px; opacity: 0.8; }
     
-    .chat-area { padding: 20px; }
-    .message { background: white; padding: 15px; border-radius: 16px; border-top-left-radius: 4px; margin-bottom: 15px; max-width: 85%; font-size: 15px; line-height: 1.5; color: #1E293B; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    .message strong { color: #1E3A8A; }
+    .chat-area { padding: 20px; display: flex; flex-direction: column; gap: 15px; }
     
+    /* Message Bubbles */
+    .message { padding: 12px 16px; border-radius: 16px; max-width: 80%; font-size: 15px; line-height: 1.4; }
+    .message.ai { background: white; color: #1E293B; align-self: flex-start; border-top-left-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .message.user { background: #1E3A8A; color: white; align-self: flex-end; border-top-right-radius: 4px; }
+    
+    /* Input Area */
     .input-area { position: fixed; bottom: 60px; left: 0; right: 0; background: white; padding: 12px 15px; display: flex; align-items: center; border-top: 1px solid #E2E8F0; }
-    .input-area input { flex: 1; padding: 14px; border: 1px solid #E2E8F0; background: #F8FAFC; border-radius: 25px; font-size: 16px; outline: none; }
-    .input-area button { background: #DC2626; color: white; border: none; width: 45px; height: 45px; border-radius: 50%; margin-left: 10px; font-size: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .input-area input { flex: 1; padding: 12px; border: 1px solid #E2E8F0; background: #F1F5F9; border-radius: 25px; font-size: 16px; outline: none; }
+    .input-area button { background: #DC2626; color: white; border: none; width: 45px; height: 45px; border-radius: 50%; margin-left: 10px; font-size: 20px; cursor: pointer; }
 
-    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px 0 15px; border-top: 1px solid #E2E8F0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100; }
+    /* Bottom Nav */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px 0 15px; border-top: 1px solid #E2E8F0; z-index: 100; }
     .nav-btn { text-align: center; color: #94A3B8; text-decoration: none; font-size: 10px; flex: 1; }
     .nav-btn.active { color: #1E3A8A; font-weight: bold; }
     .nav-icon { font-size: 22px; display: block; margin-bottom: 4px; }
@@ -32,21 +36,18 @@
     <span class="header-icon">🤖</span>
     <div>
       <h1>Professor LIGHT</h1>
-      <div class="header-status">● Online • AI Teacher</div>
+      <div style="font-size: 12px; opacity: 0.8;">● Online</div>
     </div>
   </div>
 
-  <div class="chat-area">
-    <div class="message">
-      Hello! I am <strong>Professor LIGHT</strong>. 🛡️<br><br>
-      I can help you solve Math, explain Science, or generate a quiz. <br><br>
-      What are we learning today?
+  <div class="chat-area" id="chat-box">
+    <div class="message ai">
+      Hello! I am Professor LIGHT. ️<br>What topic are we learning today?
     </div>
   </div>
 
   <div class="input-area">
-    <input type="text" placeholder="Ask a question...">
-    <button></button>
+    <input type="text" id="user-input" placeholder="Ask a question...">    <button onclick="sendMessage()">➤</button>
   </div>
 
   <div class="bottom-nav">
@@ -56,6 +57,47 @@
     <a href="ai.html" class="nav-btn active"><span class="nav-icon">💬</span>AI</a>
     <a href="profile.html" class="nav-btn"><span class="nav-icon">👤</span>Profile</a>
   </div>
+
+  <script>
+    function sendMessage() {
+      const input = document.getElementById('user-input');
+      const chatBox = document.getElementById('chat-box');
+      const text = input.value.trim();
+
+      if (text === "") return; // Don't send empty messages
+
+      // 1. Add User Message
+      const userMsg = document.createElement('div');
+      userMsg.className = 'message user';
+      userMsg.innerText = text;
+      chatBox.appendChild(userMsg);
+      
+      input.value = ""; // Clear input
+      chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
+
+      // 2. Simulate AI Thinking and Replying (after 1 second)
+      setTimeout(() => {
+        const aiMsg = document.createElement('div');
+        aiMsg.className = 'message ai';
+        
+        // Simple AI logic for now
+        if (text.toLowerCase().includes("math")) {
+          aiMsg.innerHTML = "Mathematics is fun! 📐 Are you struggling with Algebra, Geometry, or Calculus? Tell me the specific topic!";
+        } else if (text.toLowerCase().includes("hello") || text.toLowerCase().includes("hi")) {
+          aiMsg.innerHTML = "Hello there! Ready to raise your mind and build excellence today? ️";
+        } else {
+          aiMsg.innerHTML = "That's a great question! Let me look that up in my notes... 📖 <br><br>(In the next update, I will connect to a real AI brain to answer this!)";
+        }
+        
+        chatBox.appendChild(aiMsg);
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }, 1000);
+    }
+
+    // Allow pressing "Enter" on keyboard to send
+    document.getElementById('user-input').addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') sendMessage();    });
+  </script>
 
 </body>
 </html>
