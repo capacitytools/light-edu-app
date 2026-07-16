@@ -1,137 +1,210 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Dashboard</title>
+  <title>Dashboard - Light Edu</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    /* RESET & BASE */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { 
+      background-color: #F8FAFC; 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; 
+      color: #1E293B; 
+      padding-bottom: 80px; /* Space for bottom nav */
     }
-    
-    body {
-      background-color: #F3F4F6;
-      color: #1E3A8A;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-      padding-bottom: 80px;
-    }
-    
-    .header {
-      background-color: #1E3A8A;
+
+    /* TOP HEADER & GAMIFICATION */
+    .top-header {
+      background: linear-gradient(135deg, #1E3A8A 0%, #172554 100%);
       color: white;
-      padding: 20px;
-      text-align: center;
+      padding: 20px 20px 30px 20px;
+      border-bottom-left-radius: 25px;
+      border-bottom-right-radius: 25px;
     }
-    
-    .header h1 {
-      font-size: 22px;
-      margin-bottom: 5px;
+    .user-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .greeting { font-size: 14px; opacity: 0.9; }
+    .user-name { font-size: 22px; font-weight: bold; }
+    .stats { display: flex; gap: 15px; }
+    .stat-box { background: rgba(255,255,255,0.2); padding: 8px 12px; border-radius: 12px; text-align: center; }
+    .stat-num { font-size: 16px; font-weight: bold; display: block; }
+    .stat-label { font-size: 10px; opacity: 0.9; }
+
+    /* MAIN GRID MENU */
+    .grid-menu {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      padding: 0 20px;
+      margin-top: -20px; /* Overlap the header slightly */
     }
-    
-    .header p {
-      font-size: 14px;
-      color: #FCA5A5;
-    }
-    
-    .card {
+    .menu-card {
       background: white;
-      margin: 15px;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    
-    .card h3 {
-      color: #1E3A8A;
-      margin-bottom: 10px;
-    }
-    
-    .menu-item {      padding: 10px 0;
-      border-bottom: 1px solid #E5E7EB;
-    }
-    
-    /* BOTTOM NAVIGATION - This is the important part! */
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: white;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      padding: 10px 0;
-      border-top: 2px solid #1E3A8A;
-      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-    }
-    
-    .nav-btn {
+      padding: 20px 15px;
+      border-radius: 16px;
       text-align: center;
-      color: #6B7280;
       text-decoration: none;
-      font-size: 11px;
-      flex: 1;
-    }
-    
-    .nav-btn.active {
       color: #1E3A8A;
-      font-weight: bold;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+      transition: transform 0.1s;
     }
+    .menu-card:active { transform: scale(0.95); } /* Tap effect */    .menu-icon { font-size: 32px; display: block; margin-bottom: 8px; }
+    .menu-title { font-size: 14px; font-weight: bold; }
+    .menu-sub { font-size: 10px; color: #64748B; margin-top: 4px; }
+
+    /* HORIZONTAL SCROLL SECTION */
+    .section-title { padding: 20px 20px 10px; font-size: 18px; font-weight: bold; color: #1E3A8A; }
+    .scroll-container {
+      display: flex;
+      overflow-x: auto;
+      padding: 0 20px 20px;
+      gap: 15px;
+      scrollbar-width: none; /* Hide scrollbar Firefox */
+    }
+    .scroll-container::-webkit-scrollbar { display: none; } /* Hide scrollbar Chrome */
     
-    .nav-icon {
-      font-size: 24px;
-      display: block;
-      margin-bottom: 3px;
+    .lesson-card {
+      min-width: 220px;
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      text-decoration: none;
+      color: inherit;
     }
+    .lesson-thumb { height: 100px; background: #E0E7FF; display: flex; align-items: center; justify-content: center; font-size: 40px; }
+    .lesson-info { padding: 12px; }
+    .lesson-title { font-size: 14px; font-weight: bold; margin-bottom: 5px; }
+    .lesson-meta { font-size: 11px; color: #64748B; }
+    .progress-bar { height: 4px; background: #E2E8F0; border-radius: 2px; margin-top: 8px; }
+    .progress-fill { height: 100%; background: #10B981; border-radius: 2px; }
+
+    /* BOTTOM NAVIGATION */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: white; display: flex; justify-content: space-around;
+      padding: 10px 0 15px; /* Extra padding for iPhone home bar */
+      border-top: 1px solid #E2E8F0;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+      z-index: 100;
+    }
+    .nav-btn { text-align: center; color: #94A3B8; text-decoration: none; font-size: 10px; flex: 1; }
+    .nav-btn.active { color: #1E3A8A; font-weight: bold; }
+    .nav-icon { font-size: 22px; display: block; margin-bottom: 4px; }
   </style>
 </head>
 <body>
 
-  <div class="header">
-    <h1>Hello, Student! 👋</h1>
-    <p>Raising Minds, Building Excellence</p>
-  </div>
-
-  <div class="card">
-    <h3>📊 Today's Progress</h3>
-    <p style="margin: 10px 0;">Mathematics - Algebra</p>
-    <div style="background: #E5E7EB; height: 12px; border-radius: 6px;">      <div style="background: #10B981; width: 75%; height: 100%; border-radius: 6px;"></div>
+  <!-- Top Header -->
+  <div class="top-header">
+    <div class="user-info">      <div>
+        <div class="greeting" id="greeting-text">Hello,</div>
+        <div class="user-name">Student 👋</div>
+      </div>
+      <div class="stats">
+        <div class="stat-box">
+          <span class="stat-num">🔥 12</span>
+          <span class="stat-label">Streak</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-num"> 2.4k</span>
+          <span class="stat-label">Points</span>
+        </div>
+      </div>
     </div>
-    <p style="font-size: 13px; color: gray; margin-top: 5px;">75% Complete</p>
   </div>
 
-  <div class="card">
-    <h3>⚡ Quick Actions</h3>
-    <div class="menu-item">📝 Take a Quiz</div>
-    <div class="menu-item"> Watch a Lesson</div>
-    <div class="menu-item">🤖 Ask AI Teacher</div>
-    <div class="menu-item"> Read Notes</div>
+  <!-- Main Grid Menu -->
+  <div class="grid-menu">
+    <a href="learn.html" class="menu-card">
+      <span class="menu-icon"></span>
+      <div class="menu-title">Learn</div>
+      <div class="menu-sub">Subjects & Notes</div>
+    </a>
+    <a href="cbt.html" class="menu-card">
+      <span class="menu-icon">⚡</span>
+      <div class="menu-title">CBT Practice</div>
+      <div class="menu-sub">WAEC, NECO, UTME</div>
+    </a>
+    <a href="ai.html" class="menu-card">
+      <span class="menu-icon">🤖</span>
+      <div class="menu-title">AI Teacher</div>
+      <div class="menu-sub">Ask Prof. LIGHT</div>
+    </a>
+    <a href="#" class="menu-card">
+      <span class="menu-icon">📸</span>
+      <div class="menu-title">Snap & Solve</div>
+      <div class="menu-sub">Take a photo</div>
+    </a>
+    <a href="#" class="menu-card">
+      <span class="menu-icon">📖</span>
+      <div class="menu-title">E-Library</div>
+      <div class="menu-sub">PDFs & Videos</div>
+    </a>
+    <a href="#" class="menu-card">
+      <span class="menu-icon">👥</span>
+      <div class="menu-title">Community</div>
+      <div class="menu-sub">Study groups</div>
+    </a>
+  </div>
+  <!-- Horizontal Scroll: Today's Lessons -->
+  <div class="section-title">Continue Learning ▶</div>
+  <div class="scroll-container">
+    <a href="#" class="lesson-card">
+      <div class="lesson-thumb" style="background: #DBEAFE;">📐</div>
+      <div class="lesson-info">
+        <div class="lesson-title">Algebra Basics</div>
+        <div class="lesson-meta">Mathematics • 15 mins</div>
+        <div class="progress-bar"><div class="progress-fill" style="width: 75%;"></div></div>
+      </div>
+    </a>
+    <a href="#" class="lesson-card">
+      <div class="lesson-thumb" style="background: #FEE2E2;">⚛️</div>
+      <div class="lesson-info">
+        <div class="lesson-title">Newton's Laws</div>
+        <div class="lesson-meta">Physics • 20 mins</div>
+        <div class="progress-bar"><div class="progress-fill" style="width: 30%;"></div></div>
+      </div>
+    </a>
+    <a href="#" class="lesson-card">
+      <div class="lesson-thumb" style="background: #D1FAE5;">🧪</div>
+      <div class="lesson-info">
+        <div class="lesson-title">Periodic Table</div>
+        <div class="lesson-meta">Chemistry • 10 mins</div>
+        <div class="progress-bar"><div class="progress-fill" style="width: 0%;"></div></div>
+      </div>
+    </a>
   </div>
 
-  <!-- BOTTOM NAVIGATION MENU -->
+  <!-- Bottom Navigation -->
   <div class="bottom-nav">
     <a href="dashboard.html" class="nav-btn active">
-      <span class="nav-icon"></span>
-      Home
+      <span class="nav-icon">🏠</span>Home
     </a>
     <a href="learn.html" class="nav-btn">
-      <span class="nav-icon">📚</span>
-      Learn
+      <span class="nav-icon">📚</span>Learn
     </a>
-    <a href="#" class="nav-btn">
-      <span class="nav-icon">⚡</span>
-      CBT
-    </a>
-    <a href="#" class="nav-btn">
-      <span class="nav-icon">💬</span>
-      AI
+    <a href="cbt.html" class="nav-btn">
+      <span class="nav-icon">⚡</span>CBT
     </a>
     <a href="ai.html" class="nav-btn">
-      <span class="nav-icon">👤</span>
-      Profile
+      <span class="nav-icon">💬</span>AI
+    </a>
+    <a href="#" class="nav-btn">
+      <span class="nav-icon">👤</span>Profile
     </a>
   </div>
+
+  <script>    // Smart Greeting Script
+    const hour = new Date().getHours();
+    const greetingElement = document.getElementById('greeting-text');
+    if (hour < 12) {
+      greetingElement.innerText = "Good Morning,";
+    } else if (hour < 18) {
+      greetingElement.innerText = "Good Afternoon,";
+    } else {
+      greetingElement.innerText = "Good Evening,";
+    }
+  </script>
 
 </body>
 </html>
