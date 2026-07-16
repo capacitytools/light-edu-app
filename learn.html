@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Learn - Light Edu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { background-color: #F3F4F6; font-family: Arial, sans-serif; margin: 0; padding-bottom: 80px; }
+    .header { background-color: #1E3A8A; color: white; padding: 20px; text-align: center; }
+    .header h1 { font-size: 22px; margin: 0; }
+    
+    .subject-card {
+      background: white;
+      margin: 15px;
+      padding: 20px;
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      text-decoration: none;
+      color: #1E3A8A;
+    }
+    .subject-name { font-size: 18px; font-weight: bold; }
+    .subject-icon { font-size: 30px; }
+
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: white; display: flex; justify-content: space-around;
+      padding: 10px 0; border-top: 2px solid #1E3A8A;
+    }
+    .nav-btn { text-align: center; color: #6B7280; text-decoration: none; font-size: 11px; flex: 1; }
+    .nav-btn.active { color: #1E3A8A; font-weight: bold; }
+    .nav-icon { font-size: 24px; display: block; margin-bottom: 3px; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>📚 My Subjects</h1>
+  </div>
+
+  <a href="#" class="subject-card">
+    <span class="subject-name">Mathematics</span>
+    <span class="subject-icon">📐</span>
+  </a>
+
+  <a href="#" class="subject-card">
+    <span class="subject-name">Physics</span>
+    <span class="subject-icon">⚛️</span>
+  </a>
+
+  <a href="#" class="subject-card">
+    <span class="subject-name">Chemistry</span>
+    <span class="subject-icon"></span>
+  </a>
+
+  <a href="#" class="subject-card">
+    <span class="subject-name">Biology</span>
+    <span class="subject-icon">🧬</span>
+  </a>
+
+  <!-- Bottom Nav (Learn is active) -->
+  <div class="bottom-nav">
+    <a href="dashboard.html" class="nav-btn"><span class="nav-icon">🏠</span>Home</a>
+    <a href="learn.html" class="nav-btn active"><span class="nav-icon"></span>Learn</a>
+    <a href="#" class="nav-btn"><span class="nav-icon">⚡</span>CBT</a>
+    <a href="ai.html" class="nav-btn"><span class="nav-icon">💬</span>AI</a>
+    <a href="#" class="nav-btn"><span class="nav-icon"></span>Profile</a>
+  </div>
+
+</body>
+</html>
