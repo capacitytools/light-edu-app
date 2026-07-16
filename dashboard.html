@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard - Light Edu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background-color: #F3F4F6; /* Light gray background */
+      color: #1E3A8A; /* Brand Blue */
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding-bottom: 70px; /* Space for bottom menu */
+    }
+    
+    /* Top Header */
+    .header {
+      background-color: #1E3A8A;
+      color: white;
+      padding: 20px;
+      border-bottom-left-radius: 20px;
+      border-bottom-right-radius: 20px;
+    }
+    .header h2 { margin: 5px 0; font-size: 20px; }
+    .header p { margin: 0; font-size: 14px; color: #FCA5A5; }
+    
+    /* Cards */
+    .card {
+      background: white;
+      margin: 15px;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .card h3 { margin-top: 0; color: #1E3A8A; }
+    
+    /* Progress Bar */
+    .progress-bg { background: #E5E7EB; height: 10px; border-radius: 5px; }
+    .progress-fill { background: #10B981; /* Green */ width: 75%; height: 10px; border-radius: 5px; }
+
+    /* Bottom Navigation Menu */
+    .bottom-menu {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: white;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      border-top: 1px solid #E5E7EB;
+    }    .menu-item {
+      text-align: center;
+      color: #6B7280; /* Gray */
+      text-decoration: none;
+      font-size: 12px;
+    }
+    .menu-item.active {
+      color: #1E3A8A; /* Blue for active */
+      font-weight: bold;
+    }
+    .menu-icon { font-size: 24px; display: block; }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <div class="header">
+    <h2>Hello, Student! 👋</h2>
+    <p>Raising Minds, Building Excellence.</p>
+  </div>
+
+  <!-- Today's Progress Card -->
+  <div class="card">
+    <h3>Today's Progress</h3>
+    <p>Mathematics - Algebra</p>
+    <div class="progress-bg">
+      <div class="progress-fill"></div>
+    </div>
+    <p style="font-size: 12px; color: gray;">75% Complete</p>
+  </div>
+
+  <!-- Quick Actions Card -->
+  <div class="card">
+    <h3>Quick Actions</h3>
+    <p>📝 Take a Quiz</p>
+    <p> Watch a Lesson</p>
+    <p>🤖 Ask AI Teacher</p>
+  </div>
+
+  <!-- Bottom Navigation Menu (Like WhatsApp) -->
+  <div class="bottom-menu">
+    <a href="dashboard.html" class="menu-item active">
+      <span class="menu-icon">🏠</span>
+      Home
+    </a>
+    <a href="#" class="menu-item">
+      <span class="menu-icon">📚</span>
+      Learn
+    </a>
+    <a href="#" class="menu-item">      <span class="menu-icon">⚡</span>
+      CBT
+    </a>
+    <a href="#" class="menu-item">
+      <span class="menu-icon">💬</span>
+      AI
+    </a>
+    <a href="#" class="menu-item">
+      <span class="menu-icon">👤</span>
+      Profile
+    </a>
+  </div>
+
+</body>
+</html>
