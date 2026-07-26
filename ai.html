@@ -28,7 +28,7 @@
 </head>
 <body>
   <div class="header">
-    <span class="header-icon">🤖</span>
+    <span class="header-icon"></span>
     <div>
       <h1>Professor LIGHT</h1>
       <div style="font-size: 12px; opacity: 0.8;">● Online • AI Teacher</div>
@@ -41,20 +41,17 @@
 
   <div class="input-area">
     <input type="text" id="user-input" placeholder="Ask a question...">
-    <button onclick="sendMessage()"></button>
+    <button onclick="sendMessage()">➤</button>
   </div>
 
   <div class="bottom-nav">
-    <a href="dashboard.html" class="nav-btn"><span class="nav-icon">🏠</span>Home</a>
-    <a href="learn.html" class="nav-btn"><span class="nav-icon">📚</span>Learn</a>
-    <a href="cbt.html" class="nav-btn"><span class="nav-icon">⚡</span>CBT</a>    <a href="ai.html" class="nav-btn active"><span class="nav-icon"></span>AI</a>
-    <a href="profile.html" class="nav-btn"><span class="nav-icon">👤</span>Profile</a>
+    <a href="/dashboard.html" class="nav-btn"><span class="nav-icon">🏠</span>Home</a>
+    <a href="/learn.html" class="nav-btn"><span class="nav-icon">📚</span>Learn</a>
+    <a href="/cbt.html" class="nav-btn"><span class="nav-icon">⚡</span>CBT</a>    <a href="/ai.html" class="nav-btn active"><span class="nav-icon">💬</span>AI</a>
+    <a href="/profile.html" class="nav-btn"><span class="nav-icon">👤</span>Profile</a>
   </div>
 
   <script>
-    // ⚠️ PASTE YOUR GROQ API KEY BELOW ⚠️
-    const GROQ_API_KEY = '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'; 
-    
     async function sendMessage() {
       const input = document.getElementById('user-input');
       const chatBox = document.getElementById('chat-box');
@@ -75,11 +72,11 @@
       chatBox.scrollTop = chatBox.scrollHeight;
 
       try {
-        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        // WE TALK TO OUR SECRET SERVER NOW!
+        const response = await fetch('/api/chat', {
           method: 'POST',
-          headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            model: 'llama-3.1-8b-instant',
             messages: [
               {
                 role: 'system',
@@ -92,33 +89,30 @@ TEACHING STYLE:
 - Show WORKED EXAMPLES before asking students to try.
 - Use emojis to make learning fun 🧮⚛️.
 - Be ENCOURAGING and PATIENT.
-- Keep answers focused but thorough.
-RESPONSE FORMAT:
-1. Start with a simple definition/explanation.
-2. Give a relatable example.
-3. Show step-by-step how it works.4. End with encouragement or a practice tip.`
+- Keep answers focused but thorough.`
               },
               { role: 'user', content: text }
             ]
           })
         });
-        chatBox.removeChild(typingMsg);
+
+        chatBox.removeChild(typingMsg);        
         if (!response.ok) {
-          const errorData = await response.json();
-          const errorMessage = errorData.error?.message || 'Unknown Error';
-          throw new Error(errorMessage);
+          const err = await response.json();
+          throw new Error(err.error || 'Server Error');
         }
+
         const data = await response.json();
-        if (data.choices && data.choices[0]) {
-          const aiMsg = document.createElement('div');
-          aiMsg.className = 'message ai';
-          aiMsg.innerText = data.choices[0].message.content;
-          chatBox.appendChild(aiMsg);
-        } else { throw new Error('No response from AI'); }
+        const aiMsg = document.createElement('div');
+        aiMsg.className = 'message ai';
+        aiMsg.innerText = data.reply;
+        chatBox.appendChild(aiMsg);
+
       } catch (error) {
+        chatBox.removeChild(typingMsg);
         const errorMsg = document.createElement('div');
         errorMsg.className = 'message error';
-        errorMsg.innerHTML = `⚠️ <b>Error:</b><br>${error.message}`;
+        errorMsg.innerHTML = `⚠️ Error: ${error.message}`;
         chatBox.appendChild(errorMsg);
       }
       chatBox.scrollTop = chatBox.scrollHeight;
