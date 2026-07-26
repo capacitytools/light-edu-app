@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>Light Edu App</title>
+  <link rel="manifest" href="manifest.json">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
@@ -68,6 +69,18 @@
   <p class="motto">...Raising Minds, Building Excellence.</p>
 
   <a href="login.html" class="button">Get Started</a>
-
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(registration => {
+          console.log('ServiceWorker registered: ', registration);
+        })
+        .catch(err => {
+          console.log('ServiceWorker registration failed: ', err);
+        });
+    });
+  }
+</script>
 </body>
 </html>
