@@ -51,13 +51,13 @@
   <div class="bottom-nav">
     <a href="dashboard.html" class="nav-btn"><span class="nav-icon">🏠</span>Home</a>
     <a href="learn.html" class="nav-btn"><span class="nav-icon">📚</span>Learn</a>
-    <a href="cbt.html" class="nav-btn"><span class="nav-icon">⚡</span>CBT</a>
+    <a href="cbt.html" class="nav-btn"><span class="nav-icon"></span>CBT</a>
     <a href="ai.html" class="nav-btn active"><span class="nav-icon">💬</span>AI</a>
-    <a href="profile.html" class="nav-btn"><span class="nav-icon">👤</span>Profile</a>
+    <a href="profile.html" class="nav-btn"><span class="nav-icon"></span>Profile</a>
   </div>
 
   <script>
-    // ⚠️ PASTE YOUR GROQ API KEY BELOW ⚠️
+    //  STEP 2: PASTE YOUR GROQ API KEY BELOW 👇
     // Make sure there are NO spaces inside the quotes!
     const GROQ_API_KEY = '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'; 
     
@@ -78,7 +78,7 @@
 
       const typingMsg = document.createElement('div');
       typingMsg.className = 'message ai';
-      typingMsg.innerText = "🤔 Professor LIGHT is thinking...";
+      typingMsg.innerText = " Professor LIGHT is thinking...";
       chatBox.appendChild(typingMsg);
       chatBox.scrollTop = chatBox.scrollHeight;
 
@@ -90,42 +90,38 @@
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            model: 'llama-3.1-8b-instant', // Updated to the newest fast model
+            model: 'llama-3.1-8b-instant',
             messages: [
               {
-                {
-  role: 'system',
-  content: `You are Professor LIGHT, an expert teacher for Nigerian students preparing for WAEC, NECO, and UTME.
+                role: 'system',
+                content: `You are Professor LIGHT, an expert teacher for Nigerian students preparing for WAEC, NECO, and UTME.
 
-TEACHING STYLE:
-- Explain concepts SIMPLY, like teaching a 13-year-old
-- Always use REAL-LIFE EXAMPLES from Nigeria (markets, football, phone credit, etc.)
-- Break complex topics into STEP-BY-STEP instructions
-- Use SHORT sentences and SIMPLE words
-- If you must use technical terms, DEFINE them immediately
-- Show WORKED EXAMPLES before asking students to try
-- Use emojis to make learning fun 🧮⚛️
-- Be ENCOURAGING and PATIENT
-- If a student is confused, try explaining it a DIFFERENT way
-- Keep answers focused but thorough (not too long, not too short)
-- Relate topics to exam questions they will see
+TEACHING STYLE:- Explain concepts SIMPLY, like teaching a 13-year-old.
+- Always use REAL-LIFE EXAMPLES from Nigeria (markets, football, phone credit, etc.).
+- Break complex topics into STEP-BY-STEP instructions.
+- Use SHORT sentences and SIMPLE words.
+- If you must use technical terms, DEFINE them immediately.
+- Show WORKED EXAMPLES before asking students to try.
+- Use emojis to make learning fun 🧮⚛️.
+- Be ENCOURAGING and PATIENT.
+- Keep answers focused but thorough (not too long, not too short).
 
 RESPONSE FORMAT:
-1. Start with a simple definition/explanation
-2. Give a relatable example
-3. Show step-by-step how it works
-4. End with encouragement or a practice tip
+1. Start with a simple definition/explanation.
+2. Give a relatable example.
+3. Show step-by-step how it works.
+4. End with encouragement or a practice tip.
 
 Remember: Your goal is to make difficult topics EASY to understand!`
-}
-              { role: 'user', content: text }            ]
+              },
+              { role: 'user', content: text }
+            ]
           })
         });
 
         chatBox.removeChild(typingMsg);
 
         if (!response.ok) {
-          // This is the detective part! It reads the exact error from Groq
           const errorData = await response.json();
           const errorMessage = errorData.error?.message || 'Unknown Error';
           throw new Error(errorMessage);
@@ -146,12 +142,10 @@ Remember: Your goal is to make difficult topics EASY to understand!`
         console.error('AI Error:', error);
         const errorMsg = document.createElement('div');
         errorMsg.className = 'message error';
-        // This will show the exact reason on your screen!
         errorMsg.innerHTML = `⚠️ <b>Error:</b><br>${error.message}`;
         chatBox.appendChild(errorMsg);
       }
-      
-      chatBox.scrollTop = chatBox.scrollHeight;
+            chatBox.scrollTop = chatBox.scrollHeight;
     }
 
     document.getElementById('user-input').addEventListener('keypress', function (e) {
