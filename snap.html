@@ -9,46 +9,17 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { background-color: #F8FAFC; font-family: Arial, sans-serif; padding-bottom: 140px; }
-    
     .header { background: #1E3A8A; color: white; padding: 15px 20px; display: flex; align-items: center; }
     .header h1 { font-size: 18px; margin: 0; margin-left: 10px; }
-    
     .camera-area { padding: 20px; text-align: center; }
-    
-    /* The hidden file input that opens the camera */
     #camera-input { display: none; }
-    
-    /* The big button to take a picture */
-    .snap-btn {
-      background: #DC2626; color: white; border: none;
-      padding: 15px 30px; border-radius: 30px; font-size: 18px;
-      font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-      display: inline-flex; align-items: center; gap: 10px;
-    }
-    
-    /* Where the picture will show up */
-    #image-preview {
-      display: none; margin-top: 20px;
-      width: 100%; border-radius: 15px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-
+    .snap-btn { background: #DC2626; color: white; border: none; padding: 15px 30px; border-radius: 30px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); display: inline-flex; align-items: center; gap: 10px; }
+    #image-preview { display: none; margin-top: 20px; width: 100%; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     .action-area { display: none; padding: 0 20px; margin-top: 20px; }
-    .action-area textarea {
-      width: 100%; padding: 15px; border: 1px solid #E2E8F0;
-      border-radius: 12px; font-size: 16px; resize: none; height: 80px;
-    }
-    .solve-btn {
-      background: #1E3A8A; color: white; width: 100%; padding: 15px;
-      border: none; border-radius: 12px; font-size: 16px; font-weight: bold;
-      margin-top: 10px; cursor: pointer;
-    }
-
+    .action-area textarea { width: 100%; padding: 15px; border: 1px solid #E2E8F0; border-radius: 12px; font-size: 16px; resize: none; height: 80px; }
+    .solve-btn { background: #1E3A8A; color: white; width: 100%; padding: 15px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; margin-top: 10px; cursor: pointer; }
     .result-area { padding: 20px; }
-    .ai-response {
-      background: white; padding: 15px; border-radius: 12px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05); line-height: 1.5;    }
-
+    .ai-response { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); line-height: 1.5; }
     .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px 0 15px; border-top: 1px solid #E2E8F0; z-index: 100; }
     .nav-btn { text-align: center; color: #94A3B8; text-decoration: none; font-size: 10px; flex: 1; }
     .nav-btn.active { color: #1E3A8A; font-weight: bold; }
@@ -56,47 +27,38 @@
   </style>
 </head>
 <body>
-
   <div class="header">
     <span style="font-size: 24px;">📸</span>
     <h1>Snap & Solve</h1>
   </div>
 
   <div class="camera-area">
-    <!-- This button opens the phone's camera -->
-    <button class="snap-btn" onclick="document.getElementById('camera-input').click()">
-       Take Photo of Problem
-    </button>
-    
-    <!-- This is the hidden camera trigger -->
+    <button class="snap-btn" onclick="document.getElementById('camera-input').click()">📸 Take Photo of Problem</button>
     <input type="file" id="camera-input" accept="image/*" capture="environment" onchange="showPreview(event)">
-
-    <!-- The picture will appear here -->
     <img id="image-preview" alt="Problem Preview">
   </div>
 
   <div class="action-area" id="action-area">
     <textarea id="question-text" placeholder="Tell Professor LIGHT what to do (e.g., 'Solve this math problem step-by-step')"></textarea>
-    <button class="solve-btn" onclick="askAI()"> Ask Professor LIGHT</button>
+    <button class="solve-btn" onclick="askAI()">🤖 Ask Professor LIGHT</button>
   </div>
 
   <div class="result-area" id="result-area" style="display:none;">
     <h3 style="color:#1E3A8A; margin-bottom:10px;">Professor LIGHT says:</h3>
     <div class="ai-response" id="ai-response">Thinking...</div>
   </div>
-
   <div class="bottom-nav">
-    <a href="dashboard.html" class="nav-btn"><span class="nav-icon">🏠</span>Home</a>
-    <a href="learn.html" class="nav-btn"><span class="nav-icon">📚</span>Learn</a>
-    <a href="cbt.html" class="nav-btn"><span class="nav-icon">⚡</span>CBT</a>
-    <a href="ai.html" class="nav-btn"><span class="nav-icon">💬</span>AI</a>
-    <a href="profile.html" class="nav-btn"><span class="nav-icon">👤</span>Profile</a>
+    <a href="/dashboard.html" class="nav-btn"><span class="nav-icon">🏠</span>Home</a>
+    <a href="/learn.html" class="nav-btn"><span class="nav-icon">📚</span>Learn</a>
+    <a href="/cbt.html" class="nav-btn"><span class="nav-icon">⚡</span>CBT</a>
+    <a href="/ai.html" class="nav-btn"><span class="nav-icon">💬</span>AI</a>
+    <a href="/profile.html" class="nav-btn"><span class="nav-icon">👤</span>Profile</a>
   </div>
 
   <script>
-    // 1. Show the picture after taking it
     function showPreview(event) {
-      const file = event.target.files[0];      if (file) {
+      const file = event.target.files[0];
+      if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
           const img = document.getElementById('image-preview');
@@ -108,9 +70,6 @@
       }
     }
 
-    // 2. Send the text to the AI (Using the same Groq API as before)
-    const GROQ_API_KEY = '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'; // ⚠️ PASTE YOUR KEY HERE AGAIN!
-
     async function askAI() {
       const text = document.getElementById('question-text').value;
       if (!text) return alert("Please tell the AI what to do!");
@@ -119,23 +78,25 @@
       document.getElementById('ai-response').innerText = "🤔 Professor LIGHT is looking at your photo and thinking...";
 
       try {
-        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        // WE TALK TO OUR SECRET SERVER NOW!
+        const response = await fetch('/api/chat', {
           method: 'POST',
-          headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            model: 'llama-3.1-8b-instant',
             messages: [
               { role: 'system', content: 'You are Professor LIGHT. The student has taken a picture of a problem. Help them solve it simply and step-by-step.' },
               { role: 'user', content: text }
             ]
           })
         });
+        
         const data = await response.json();
-        document.getElementById('ai-response').innerText = data.choices[0].message.content;
+        if (!response.ok) throw new Error(data.error || 'Failed');
+        
+        document.getElementById('ai-response').innerText = data.reply;
       } catch (error) {
         document.getElementById('ai-response').innerText = "Error connecting to AI.";
-      }
-    }
+      }    }
   </script>
 </body>
 </html>
