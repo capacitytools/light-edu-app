@@ -18,7 +18,7 @@
     .stat-num { font-size: 16px; font-weight: bold; display: block; }
     .stat-label { font-size: 10px; opacity: 0.9; }
     .grid-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 0 20px; margin-top: -20px; }
-    .menu-card { background: white; padding: 20px 15px; border-radius: 16px; text-align: center; text-decoration: none; color: #1E3A8A; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    .menu-card { background: white; padding: 20px 15px; border-radius: 16px; text-align: center; text-decoration: none; color: #1E3A8A; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); display: block; }
     .menu-card:active { transform: scale(0.95); }
     .menu-icon { font-size: 32px; display: block; margin-bottom: 8px; }
     .menu-title { font-size: 14px; font-weight: bold; }
@@ -40,14 +40,14 @@
   </style>
 </head>
 <body>
+
   <div class="top-header">
     <div class="user-info">
       <div>
         <div class="greeting" id="greeting-text">Hello,</div>
         <div class="user-name">Student 👋</div>
       </div>
-      <div class="stats">
-        <div class="stat-box"><span class="stat-num">🔥 12</span><span class="stat-label">Streak</span></div>
+      <div class="stats">        <div class="stat-box"><span class="stat-num">🔥 12</span><span class="stat-label">Streak</span></div>
         <div class="stat-box"><span class="stat-num">⭐ 2.4k</span><span class="stat-label">Points</span></div>
       </div>
     </div>
@@ -57,7 +57,10 @@
     <a href="learn.html" class="menu-card"><span class="menu-icon">📚</span><div class="menu-title">Learn</div><div class="menu-sub">Subjects & Notes</div></a>
     <a href="cbt.html" class="menu-card"><span class="menu-icon">⚡</span><div class="menu-title">CBT Practice</div><div class="menu-sub">WAEC, NECO, UTME</div></a>
     <a href="ai.html" class="menu-card"><span class="menu-icon">🤖</span><div class="menu-title">AI Teacher</div><div class="menu-sub">Ask Prof. LIGHT</div></a>
+    
+    <!-- THIS IS THE FIXED SNAP & SOLVE BUTTON -->
     <a href="snap.html" class="menu-card"><span class="menu-icon"></span><div class="menu-title">Snap & Solve</div><div class="menu-sub">Take a photo</div></a>
+    
     <a href="#" class="menu-card"><span class="menu-icon">📖</span><div class="menu-title">E-Library</div><div class="menu-sub">PDFs & Videos</div></a>
     <a href="#" class="menu-card"><span class="menu-icon">👥</span><div class="menu-title">Community</div><div class="menu-sub">Study groups</div></a>
   </div>
@@ -73,16 +76,16 @@
       <div class="lesson-info"><div class="lesson-title">Newton's Laws</div><div class="lesson-meta">Physics • 20 mins</div><div class="progress-bar"><div class="progress-fill" style="width: 30%;"></div></div></div>
     </a>
     <a href="#" class="lesson-card">
-      <div class="lesson-thumb" style="background: #D1FAE5;"></div>
+      <div class="lesson-thumb" style="background: #D1FAE5;">🧪</div>
       <div class="lesson-info"><div class="lesson-title">Periodic Table</div><div class="lesson-meta">Chemistry • 10 mins</div><div class="progress-bar"><div class="progress-fill" style="width: 0%;"></div></div></div>
     </a>
   </div>
 
   <div class="bottom-nav">
-    <a href="dashboard.html" class="nav-btn active"><span class="nav-icon"></span>Home</a>
+    <a href="dashboard.html" class="nav-btn active"><span class="nav-icon">🏠</span>Home</a>
     <a href="learn.html" class="nav-btn"><span class="nav-icon">📚</span>Learn</a>
     <a href="cbt.html" class="nav-btn"><span class="nav-icon">⚡</span>CBT</a>
-    <a href="ai.html" class="nav-btn"><span class="nav-icon">💬</span>AI</a>
+    <a href="ai.html" class="nav-btn"><span class="nav-icon"></span>AI</a>
     <a href="profile.html" class="nav-btn"><span class="nav-icon">👤</span>Profile</a>
   </div>
 
@@ -93,5 +96,4 @@
     else if (hour < 18) greetingElement.innerText = "Good Afternoon,";
     else greetingElement.innerText = "Good Evening,";
   </script>
-</body>
-</html>
+</body></html>
