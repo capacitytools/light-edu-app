@@ -1,26 +1,21 @@
 export default async function handler(req, res) {
-  // Allow requests from any origin (for testing)
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  
+  // Only allow POST requests for security
   if (req.method !== 'POST') {
-    return res.status(405).end();
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { message } = req.body;
-  
-  // Check if API key exists
+  // Grab the secret key from Vercel's vault
   const apiKey = process.env.GROQ_API_KEY;
-  
-  if (!apiKey || apiKey === 'PASTE_YOUR_GROQ_KEY_HERE') {
-    console.error('❌ API Key is missing or not configured');
-    return res.status(500).json({ 
-      error: 'API key not configured',
-      details: 'The server is missing the Groq API key. Check Vercel Environment Variables.'
-    });
+
+  if (!apiKey) {
+    return res.status(500).json({ error: 'Server is missing the API Key' });
   }
 
   try {
-    // Make the request to Groq
+    // Get the messages from your website
+    const { messages, model = 'llama-3.1-8b-instant' } = req.body;
+
+    // Send them to Groq securely
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -28,54 +23,21 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'llama3-8b-8192',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are Professor LIGHT, a friendly AI teacher. Keep responses helpful and concise.'
-          },
-          { role: 'user', content: message }
-        ]
+        model: model,
+        messages: messages
       })
     });
 
-    // Check if the response is OK
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Groq API Error:', response.status, errorText);
-      
-      if (response.status === 401) {
-        return res.status(401).json({ 
-          error: 'Invalid API Key',
-          details: 'Your Groq API key is invalid or expired. Please check your key.'
-        });
-      }
-      
-      return res.status(response.status).json({ 
-        error: 'Groq API Error',
-        details: errorText
-      });
-    }
-
     const data = await response.json();
-    
-    if (!data.choices || !data.choices[0]?.message?.content) {
-      return res.status(500).json({ 
-        error: 'Unexpected response from AI',
-        details: data
-      });
+
+    if (!response.ok) {
+      return res.status(response.status).json({ error: data.error?.message || 'Groq Error' });
     }
 
-    // Success!
-    return res.status(200).json({ 
-      reply: data.choices[0].message.content 
-    });
+    // Send the answer back to your website
+    return res.status(200).json({ reply: data.choices[0].message.content });
 
   } catch (error) {
-    console.error('Server Error:', error);
-    return res.status(500).json({ 
-      error: 'Server error',
-      details: error.message
-    });
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 }
