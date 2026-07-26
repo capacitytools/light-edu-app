@@ -1,21 +1,24 @@
 {
   "name": "Light In The Light Educonsult",
   "short_name": "Light Edu",
-  "description": "Raising Minds, Building Excellence",
+  "description": "Raising Minds, Building Excellence - WAEC, NECO, UTME Prep",
   "start_url": "index.html",
   "display": "standalone",
   "theme_color": "#1E3A8A",
   "background_color": "#1E3A8A",
+  "orientation": "portrait",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/2997/2997276.png",
-      "sizes": "512x512",
-      "type": "image/png"
+      "src": "https://img.icons8.com/ios-filled/192/1E3A8A/graduation-cap.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/2997/2997276.png",
-      "sizes": "192x192",
-      "type": "image/png"
+      "src": "https://img.icons8.com/ios-filled/512/1E3A8A/graduation-cap.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }
