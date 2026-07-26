@@ -1,15 +1,21 @@
 {
-  "name": "Light Edu App",
+  "name": "Light In The Light Educonsult",
   "short_name": "Light Edu",
-  "icons": [
-    {
-      "src": "logo.jpg",
-      "sizes": "192x192",
-      "type": "image/jpeg"
-    }
-  ],
+  "description": "Raising Minds, Building Excellence",
   "start_url": "index.html",
   "display": "standalone",
   "theme_color": "#1E3A8A",
-  "background_color": "#1E3A8A"
+  "background_color": "#1E3A8A",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2997/2997276.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2997/2997276.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
 }
