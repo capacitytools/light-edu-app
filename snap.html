@@ -6,20 +6,32 @@
   <meta name="theme-color" content="#1E3A8A">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="logo.png">
+  <!-- This makes the AI's answer look beautiful -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background-color: #F8FAFC; font-family: Arial, sans-serif; padding-bottom: 140px; }
-    .header { background: #1E3A8A; color: white; padding: 15px 20px; display: flex; align-items: center; }
+    body { background-color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding-bottom: 140px; }
+    .header { background: linear-gradient(135deg, #1E3A8A 0%, #172554 100%); color: white; padding: 15px 20px; display: flex; align-items: center; }
     .header h1 { font-size: 18px; margin: 0; margin-left: 10px; }
     .camera-area { padding: 20px; text-align: center; }
     #camera-input { display: none; }
     .snap-btn { background: #DC2626; color: white; border: none; padding: 15px 30px; border-radius: 30px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); display: inline-flex; align-items: center; gap: 10px; }
-    #image-preview { display: none; margin-top: 20px; width: 100%; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    #image-preview { display: none; margin-top: 20px; width: 100%; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-height: 300px; object-fit: cover; }
     .action-area { display: none; padding: 0 20px; margin-top: 20px; }
     .action-area textarea { width: 100%; padding: 15px; border: 1px solid #E2E8F0; border-radius: 12px; font-size: 16px; resize: none; height: 80px; }
     .solve-btn { background: #1E3A8A; color: white; width: 100%; padding: 15px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; margin-top: 10px; cursor: pointer; }
     .result-area { padding: 20px; }
-    .ai-response { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); line-height: 1.5; }
+    .ai-response { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); line-height: 1.6; font-size: 15px; }
+    
+    /* Beautiful formatting for the AI answer */
+    .ai-response h3 { font-size: 1.15em; font-weight: 800; color: #1E3A8A; margin: 10px 0 5px 0; }
+    .ai-response strong { text-decoration: underline; text-decoration-color: #DC2626; text-underline-offset: 3px; font-weight: bold; }
+    .ai-response em { font-family: 'Comic Sans MS', 'Chalkboard SE', cursive; color: #2563EB; font-style: normal; }
+    .ai-response blockquote { background: #FEF3C7; padding: 10px 12px; border-radius: 8px; border-left: 4px solid #F59E0B; margin: 10px 0; color: #78350F; }
+    .ai-response ul { padding-left: 20px; margin: 10px 0; }
+    .ai-response li { margin-bottom: 6px; list-style-type: none; position: relative; }
+    .ai-response li::before { content: '●'; color: #10B981; font-size: 12px; position: absolute; left: -18px; top: 2px; }
+
     .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px 0 15px; border-top: 1px solid #E2E8F0; z-index: 100; }
     .nav-btn { text-align: center; color: #94A3B8; text-decoration: none; font-size: 10px; flex: 1; }
     .nav-btn.active { color: #1E3A8A; font-weight: bold; }
@@ -33,13 +45,12 @@
   </div>
 
   <div class="camera-area">
-    <button class="snap-btn" onclick="document.getElementById('camera-input').click()">📸 Take Photo of Problem</button>
+    <button class="snap-btn" onclick="document.getElementById('camera-input').click()"> Take Photo of Problem</button>
     <input type="file" id="camera-input" accept="image/*" capture="environment" onchange="showPreview(event)">
-    <img id="image-preview" alt="Problem Preview">
-  </div>
+    <img id="image-preview" alt="Problem Preview">  </div>
 
   <div class="action-area" id="action-area">
-    <textarea id="question-text" placeholder="Tell Professor LIGHT what to do (e.g., 'Solve this math problem step-by-step')"></textarea>
+    <textarea id="question-text" placeholder="Tell Professor LIGHT what to do (e.g., 'Solve this step-by-step')"></textarea>
     <button class="solve-btn" onclick="askAI()">🤖 Ask Professor LIGHT</button>
   </div>
 
@@ -47,11 +58,12 @@
     <h3 style="color:#1E3A8A; margin-bottom:10px;">Professor LIGHT says:</h3>
     <div class="ai-response" id="ai-response">Thinking...</div>
   </div>
+
   <div class="bottom-nav">
     <a href="/dashboard.html" class="nav-btn"><span class="nav-icon">🏠</span>Home</a>
-    <a href="/learn.html" class="nav-btn"><span class="nav-icon">📚</span>Learn</a>
+    <a href="/learn.html" class="nav-btn"><span class="nav-icon"></span>Learn</a>
     <a href="/cbt.html" class="nav-btn"><span class="nav-icon">⚡</span>CBT</a>
-    <a href="/ai.html" class="nav-btn"><span class="nav-icon">💬</span>AI</a>
+    <a href="/ai.html" class="nav-btn"><span class="nav-icon">🤖</span>AI</a>
     <a href="/profile.html" class="nav-btn"><span class="nav-icon">👤</span>Profile</a>
   </div>
 
@@ -62,41 +74,60 @@
         const reader = new FileReader();
         reader.onload = function(e) {
           const img = document.getElementById('image-preview');
-          img.src = e.target.result;
+          img.src = e.target.result; // This creates the base64 image data
           img.style.display = 'block';
           document.getElementById('action-area').style.display = 'block';
+          document.getElementById('result-area').style.display = 'none';
         }
         reader.readAsDataURL(file);
       }
     }
 
     async function askAI() {
-      const text = document.getElementById('question-text').value;
-      if (!text) return alert("Please tell the AI what to do!");
+      const text = document.getElementById('question-text').value || "Solve this problem step-by-step.";
+      const imgSrc = document.getElementById('image-preview').src;
+      
+      if (!imgSrc || imgSrc === window.location.href) return alert("Please take a photo first!");
 
       document.getElementById('result-area').style.display = 'block';
-      document.getElementById('ai-response').innerText = "🤔 Professor LIGHT is looking at your photo and thinking...";
+      document.getElementById('ai-response').innerHTML = "🤔 Professor LIGHT is looking at your photo and thinking...";
+
+      // This is the magic format for Vision AI
+      const visionMessages = [
+        {
+          role: 'user',
+          content: [            { 
+              type: 'text', 
+              text: `You are Professor LIGHT, a friendly teacher for 12-15 year olds. The student uploaded this picture. ${text} Explain the solution simply, step-by-step, using Nigerian examples if possible. Use markdown for beautiful formatting.` 
+            },
+            { 
+              type: 'image_url', 
+              image_url: { url: imgSrc } 
+            }
+          ]
+        }
+      ];
 
       try {
-        // WE TALK TO OUR SECRET SERVER NOW!
+        // We send it to our secret server, but tell it to use the VISION model!
         const response = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            messages: [
-              { role: 'system', content: 'You are Professor LIGHT. The student has taken a picture of a problem. Help them solve it simply and step-by-step.' },
-              { role: 'user', content: text }
-            ]
+          body: JSON.stringify({ 
+            messages: visionMessages,
+            model: 'llama-3.2-11b-vision-preview' // This is the model that can SEE!
           })
         });
         
         const data = await response.json();
-        if (!response.ok) throw new Error(data.error || 'Failed');
+        if (!response.ok) throw new Error(data.error || 'Failed to connect');
         
-        document.getElementById('ai-response').innerText = data.reply;
+        // Convert the markdown answer into beautiful HTML
+        document.getElementById('ai-response').innerHTML = marked.parse(data.reply);
       } catch (error) {
-        document.getElementById('ai-response').innerText = "Error connecting to AI.";
-      }    }
+        document.getElementById('ai-response').innerHTML = `⚠️ Error: ${error.message}`;
+      }
+    }
   </script>
 </body>
 </html>
