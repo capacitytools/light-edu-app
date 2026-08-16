@@ -1,4 +1,4 @@
-<!DOCTYPE html>  
+<!DOCTYPE html>
 <html>
 <head>
   <title>CBT Practice - Light Edu</title>
@@ -8,59 +8,278 @@
   <link rel="apple-touch-icon" href="logo.png">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background-color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; color: #1E293B; padding-bottom: 130px; }
-    .exam-header { background: #1E3A8A; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
-    .timer { background: #DC2626; padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 14px; }
-    .question-box { background: white; margin: 15px; padding: 20px; border-radius: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    .q-number { color: #64748B; font-size: 14px; margin-bottom: 10px; font-weight: bold; }
-    .q-text { font-size: 18px; font-weight: bold; color: #1E3A8A; line-height: 1.4; margin-bottom: 20px; }
-    .option { background: #F8FAFC; border: 2px solid #E2E8F0; padding: 15px; margin-bottom: 12px; border-radius: 12px; font-size: 16px; cursor: pointer; transition: 0.2s; }
-    .option.selected { background: #D1FAE5; border-color: #10B981; color: #065F46; font-weight: bold; }
-    .actions { display: flex; justify-content: space-between; margin: 0 15px; }
-    .btn { padding: 14px 20px; border-radius: 12px; border: none; font-size: 16px; font-weight: bold; cursor: pointer; }
-    .btn-prev { background: #E2E8F0; color: #1E3A8A; }
-    .btn-next { background: #1E3A8A; color: white; }
-    .btn-flag { background: #FEE2E2; color: #DC2626; width: calc(100% - 30px); margin: 15px; border: none; padding: 14px; border-radius: 12px; font-weight: bold; font-size: 16px; }
+    body { background-color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; color: #1E293B; padding-bottom: 80px; }
+    
+    .header { background: linear-gradient(135deg, #1E3A8A 0%, #172554 100%); color: white; padding: 20px; text-align: center; border-bottom-left-radius: 25px; border-bottom-right-radius: 25px; }
+    .header h1 { font-size: 22px; margin: 0; }
+    .header p { font-size: 14px; opacity: 0.9; margin-top: 5px; }
+
+    /* Subject Selection View */
+    .subject-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; }
+    .subject-card { background: white; padding: 20px; border-radius: 16px; text-align: center; text-decoration: none; color: #1E3A8A; box-shadow: 0 4px 6px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.2s; }
+    .subject-card:active { transform: scale(0.95); }
+    .subject-icon { font-size: 32px; margin-bottom: 10px; display: block; }
+    .subject-name { font-weight: bold; font-size: 16px; }
+
+    /* Quiz View */
+    .quiz-container { padding: 20px; }
+    .batch-header { background: #1E3A8A; color: white; padding: 10px 15px; border-radius: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; font-weight: bold; }
+    .question-card { background: white; padding: 15px; border-radius: 16px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .q-text { font-size: 16px; font-weight: bold; margin-bottom: 12px; color: #1E293B; }
+    .option { background: #F1F5F9; border: 2px solid #E2E8F0; padding: 12px; margin-bottom: 8px; border-radius: 10px; cursor: pointer; font-size: 15px; transition: 0.2s; }
+    .option.selected { background: #DBEAFE; border-color: #1E3A8A; color: #1E3A8A; font-weight: bold; }
+    .submit-btn { background: #DC2626; color: white; width: 100%; padding: 15px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+
+    /* Results View */
+    .results-container { padding: 20px; }
+    .score-box { background: linear-gradient(135deg, #10B981, #059669); color: white; padding: 20px; border-radius: 16px; text-align: center; margin-bottom: 20px; }
+    .score-num { font-size: 36px; font-weight: bold; }
+    .explanation-card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid #1E3A8A; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .exp-q { font-weight: bold; margin-bottom: 8px; font-size: 14px; }
+    .exp-ans { color: #10B981; font-weight: bold; font-size: 13px; margin-bottom: 5px; }
+    .exp-text { color: #475569; font-size: 13px; line-height: 1.4; }
+    .next-btn { background: #1E3A8A; color: white; width: 100%; padding: 15px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; }
+
+    .hidden { display: none !important; }
+
     .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px 0 15px; border-top: 1px solid #E2E8F0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100; }
     .nav-btn { text-align: center; color: #94A3B8; text-decoration: none; font-size: 10px; flex: 1; }
     .nav-btn.active { color: #1E3A8A; font-weight: bold; }
     .nav-icon { font-size: 22px; display: block; margin-bottom: 4px; }
   </style>
-</head>
-<body>
-  <div class="exam-header">
-    <span style="font-weight:bold;">UTME Mock Exam</span>
-    <span class="timer">⏱️ 01:45:20</span>
+</head><body>
+
+  <div class="header">
+    <h1>⚡ CBT Mock Exam</h1>
+    <p>WAEC, NECO & UTME Practice</p>
   </div>
 
-  <div class="question-box">
-    <div class="q-number">Question 12 of 50</div>
-    <div class="q-text">If log₁₀2 = 0.3010, find the value of log₁₀8.</div>
-    <div class="option" onclick="selectOption(this)">A) 0.6020</div>
-    <div class="option" onclick="selectOption(this)">B) 0.9030</div>
-    <div class="option" onclick="selectOption(this)">C) 0.4515</div>
-    <div class="option" onclick="selectOption(this)">D) 1.2040</div>
+  <!-- VIEW 1: SUBJECT SELECTION -->
+  <div id="subject-view" class="subject-grid">
+    <div class="subject-card" onclick="startQuiz('maths')">
+      <span class="subject-icon">📐</span>
+      <div class="subject-name">Mathematics</div>
+    </div>
+    <div class="subject-card" onclick="startQuiz('physics')">
+      <span class="subject-icon">⚛️</span>
+      <div class="subject-name">Physics</div>
+    </div>
+    <div class="subject-card" onclick="startQuiz('chemistry')">
+      <span class="subject-icon">🧪</span>
+      <div class="subject-name">Chemistry</div>
+    </div>
+    <div class="subject-card" onclick="startQuiz('biology')">
+      <span class="subject-icon">🧬</span>
+      <div class="subject-name">Biology</div>
+    </div>
+    <div class="subject-card" onclick="startQuiz('english')">
+      <span class="subject-icon"></span>
+      <div class="subject-name">English</div>
+    </div>
   </div>
 
-  <div class="actions">
-    <button class="btn btn-prev">◀ Prev</button>
-    <button class="btn btn-next">Next ▶</button>
+  <!-- VIEW 2: QUIZ -->
+  <div id="quiz-view" class="hidden quiz-container">
+    <div class="batch-header">
+      <span id="batch-title">Batch 1 of 10</span>
+      <span id="subject-title">Mathematics</span>
+    </div>
+    <div id="questions-container"></div>
+    <button class="submit-btn" onclick="submitBatch()">Submit Answers</button>
   </div>
-  <button class="btn-flag">🚩 Flag for Review</button>
 
+  <!-- VIEW 3: RESULTS -->
+  <div id="results-view" class="hidden results-container">
+    <div class="score-box">
+      <div style="font-size: 14px; opacity: 0.9;">Your Score for this Batch</div>
+      <div class="score-num" id="score-display">0/5</div>
+    </div>
+    <div id="explanations-container"></div>
+    <button class="next-btn" id="next-btn" onclick="nextBatch()">Next 5 Questions ➡️</button>
+  </div>
   <div class="bottom-nav">
-    <a href="dashboard.html" class="nav-btn"><span class="nav-icon">🏠</span>Home</a>
-    <a href="learn.html" class="nav-btn"><span class="nav-icon">📚</span>Learn</a>
-    <a href="cbt.html" class="nav-btn active"><span class="nav-icon">⚡</span>CBT</a>
-    <a href="ai.html" class="nav-btn"><span class="nav-icon"></span>AI</a>
-    <a href="profile.html" class="nav-btn"><span class="nav-icon">👤</span>Profile</a>
+    <a href="/dashboard.html" class="nav-btn"><span class="nav-icon">🏠</span>Home</a>
+    <a href="/learn.html" class="nav-btn"><span class="nav-icon">📚</span>Learn</a>
+    <a href="/cbt.html" class="nav-btn active"><span class="nav-icon"></span>CBT</a>
+    <a href="/ai.html" class="nav-btn"><span class="nav-icon">💬</span>AI</a>
+    <a href="/profile.html" class="nav-btn"><span class="nav-icon"></span>Profile</a>
   </div>
 
   <script>
-    function selectOption(element) {
-      let options = document.querySelectorAll('.option');
-      options.forEach(opt => opt.classList.remove('selected'));
+    // DATABASE OF QUESTIONS (50 per subject, 5 per batch)
+    // I have included 10 real questions per subject to show how it works. 
+    // You can easily copy the format to add up to 50!
+    const questionsDB = {
+      maths: [
+        { q: "If 2x + 5 = 15, what is x?", options: ["2", "5", "10", "7"], ans: 1, exp: "Subtract 5 from both sides: 2x = 10. Then divide by 2: x = 5. Simple algebra!" },
+        { q: "What is the square root of 144?", options: ["10", "11", "12", "14"], ans: 2, exp: "12 multiplied by 12 equals 144. So the square root is 12." },
+        { q: "Solve: 3(x - 2) = 9", options: ["3", "4", "5", "6"], ans: 2, exp: "Divide both sides by 3: x - 2 = 3. Add 2 to both sides: x = 5." },
+        { q: "What is 15% of 200?", options: ["20", "25", "30", "35"], ans: 2, exp: "10% of 200 is 20. 5% is half of that (10). So 20 + 10 = 30." },
+        { q: "If a triangle has angles 60°, 60°, and 60°, it is:", options: ["Scalene", "Isosceles", "Equilateral", "Right-angled"], ans: 2, exp: "All three angles are equal, so all three sides must be equal. That's an equilateral triangle!" },
+        { q: "What is the value of 5! (5 factorial)?", options: ["25", "60", "120", "720"], ans: 2, exp: "5! = 5 × 4 × 3 × 2 × 1 = 120." },
+        { q: "Simplify: 2a + 3b - a + b", options: ["a + 4b", "3a + 4b", "a + 2b", "3a + 2b"], ans: 0, exp: "Group the 'a's: 2a - a = a. Group the 'b's: 3b + b = 4b. Result: a + 4b." },
+        { q: "What is the area of a rectangle with length 8 and width 5?", options: ["13", "26", "40", "45"], ans: 2, exp: "Area = length × width. 8 × 5 = 40." },
+        { q: "Solve for y: y/4 = 3", options: ["7", "12", "0.75", "1"], ans: 1, exp: "Multiply both sides by 4. y = 3 × 4 = 12." },
+        { q: "What is the next number in the sequence: 2, 4, 8, 16...?", options: ["24", "30", "32", "36"], ans: 2, exp: "Each number is multiplied by 2. 16 × 2 = 32." }
+        // Add 40 more questions here following the same format!
+      ],
+      physics: [
+        { q: "What is the SI unit of force?", options: ["Joule", "Newton", "Watt", "Pascal"], ans: 1, exp: "Force is measured in Newtons (N), named after Sir Isaac Newton." },
+        { q: "Which of these is a vector quantity?", options: ["Speed", "Mass", "Velocity", "Time"], ans: 2, exp: "Velocity has both size (speed) and direction, making it a vector. Speed only has size." },
+        { q: "What is the formula for speed?", options: ["Mass × Volume", "Distance / Time", "Force × Distance", "Mass × Acceleration"], ans: 1, exp: "Speed is how fast you cover distance. So, Speed = Distance divided by Time." },
+        { q: "The bending of light as it passes from one medium to another is called:", options: ["Reflection", "Refraction", "Diffraction", "Dispersion"], ans: 1, exp: "Refraction is when light bends (like a straw looking broken in a glass of water)." },
+        { q: "What is the acceleration due to gravity on Earth?", options: ["8.9 m/s²", "9.8 m/s²", "10.5 m/s²", "11.2 m/s²"], ans: 1, exp: "On Earth, gravity pulls things down at about 9.8 meters per second squared." },
+        { q: "Which law states that 'Action and reaction are equal and opposite'?", options: ["Newton's 1st Law", "Newton's 2nd Law", "Newton's 3rd Law", "Law of Gravity"], ans: 2, exp: "Newton's 3rd Law: For every action, there is an equal and opposite reaction." },
+        { q: "What type of energy does a moving car have?", options: ["Potential", "Kinetic", "Chemical", "Nuclear"], ans: 1, exp: "Kinetic energy is the energy of motion. If it's moving, it has kinetic energy!" },
+        { q: "The unit of electrical resistance is:", options: ["Volt", "Ampere", "Ohm", "Watt"], ans: 2, exp: "Resistance is measured in Ohms (Ω). It's like friction for electricity." },
+        { q: "Sound cannot travel through:", options: ["Air", "Water", "Steel", "Vacuum"], ans: 3, exp: "Sound needs particles to vibrate. A vacuum has no particles, so sound can't travel there." },
+        { q: "What is the boiling point of water in Celsius?", options: ["90°C", "100°C", "110°C", "212°C"], ans: 1, exp: "Water boils at 100°C (which is 212°F)." }
+      ],
+      chemistry: [
+        { q: "What is the chemical symbol for Gold?", options: ["Go", "Gd", "Au", "Ag"], ans: 2, exp: "Au comes from the Latin word 'Aurum', which means gold." },
+        { q: "How many elements are in the periodic table (approx)?", options: ["92", "108", "118", "150"], ans: 2, exp: "There are currently 118 confirmed elements on the periodic table." },
+        { q: "What is the pH of pure water?", options: ["5", "7", "9", "14"], ans: 1, exp: "Pure water is neutral, so its pH is exactly 7." },
+        { q: "Which gas do plants absorb during photosynthesis?", options: ["Oxygen", "Nitrogen", "Carbon Dioxide", "Hydrogen"], ans: 2, exp: "Plants take in Carbon Dioxide (CO2) and release Oxygen." },
+        { q: "What is the chemical formula for table salt?", options: ["NaO", "NaCl", "KCl", "HCl"], ans: 1, exp: "Table salt is Sodium Chloride. Na is Sodium, Cl is Chlorine." },
+        { q: "An atom that has lost an electron is called a:", options: ["Anion", "Cation", "Neutron", "Isotope"], ans: 1, exp: "Losing a negative electron makes the atom positive. A positive ion is a Cation." },
+        { q: "Which of these is a noble gas?", options: ["Oxygen", "Nitrogen", "Helium", "Chlorine"], ans: 2, exp: "Helium is in Group 8. Noble gases are unreactive and stable." },
+        { q: "The process of a solid turning directly into a gas is:", options: ["Melting", "Evaporation", "Sublimation", "Condensation"], ans: 2, exp: "Sublimation skips the liquid phase. Dry ice (solid CO2) does this!" },
+        { q: "What is the valency of Oxygen?", options: ["1", "2", "3", "4"], ans: 1, exp: "Oxygen needs 2 electrons to complete its outer shell, so its valency is 2." },
+        { q: "Which acid is found in car batteries?", options: ["Hydrochloric", "Sulphuric", "Nitric", "Acetic"], ans: 1, exp: "Car batteries use strong Sulphuric Acid (H2SO4)." }      ],
+      biology: [
+        { q: "What is the powerhouse of the cell?", options: ["Nucleus", "Ribosome", "Mitochondria", "Cytoplasm"], ans: 2, exp: "Mitochondria produce the energy (ATP) the cell needs to survive." },
+        { q: "Which blood group is the universal donor?", options: ["A", "B", "AB", "O"], ans: 3, exp: "Group O has no antigens, so it can be given to anyone safely." },
+        { q: "Photosynthesis takes place in the:", options: ["Roots", "Stem", "Leaves", "Flowers"], ans: 2, exp: "Leaves contain chlorophyll, which captures sunlight for photosynthesis." },
+        { q: "The basic unit of life is the:", options: ["Tissue", "Organ", "Cell", "System"], ans: 2, exp: "All living things are made of cells. It's the smallest living unit." },
+        { q: "Which organ pumps blood in the body?", options: ["Liver", "Lungs", "Heart", "Kidney"], ans: 2, exp: "The heart is a muscular pump that pushes blood through your veins." },
+        { q: "What is the study of plants called?", options: ["Zoology", "Botany", "Ecology", "Genetics"], ans: 1, exp: "Botany is the branch of biology that focuses on plants." },
+        { q: "DNA stands for:", options: ["Deoxyribonucleic Acid", "Dinitrogen Acid", "Dynamic Nuclear Acid", "None"], ans: 0, exp: "DNA is Deoxyribonucleic Acid. It holds the instructions for life!" },
+        { q: "Which vitamin is produced when skin is exposed to sunlight?", options: ["Vitamin A", "Vitamin B", "Vitamin C", "Vitamin D"], ans: 3, exp: "Sunlight helps your skin make Vitamin D, which is great for bones." },
+        { q: "The process of breathing in oxygen and breathing out carbon dioxide is:", options: ["Digestion", "Respiration", "Excretion", "Circulation"], ans: 1, exp: "Respiration is how our bodies get oxygen and get rid of CO2." },
+        { q: "Which part of the eye controls how much light enters?", options: ["Retina", "Cornea", "Iris", "Lens"], ans: 2, exp: "The Iris is the colored part. It opens and closes the pupil to control light." }
+      ],
+      english: [
+        { q: "Choose the correct spelling:", options: ["Accomodate", "Accommodate", "Acommodate", "Acomodate"], ans: 1, exp: "Accommodate has two 'c's and two 'm's. Think: 'A room for two'." },
+        { q: "What is the plural of 'Child'?", options: ["Childs", "Childrens", "Children", "Childes"], ans: 2, exp: "Child is irregular. The plural is Children (no 's' at the end)." },
+        { q: "Which is a verb?", options: ["Quickly", "Beautiful", "Run", "Happiness"], ans: 2, exp: "Run is an action word, which makes it a verb." },
+        { q: "Choose the correct sentence:", options: ["He don't like it.", "He doesn't likes it.", "He doesn't like it.", "He not like it."], ans: 2, exp: "With 'He', we use 'doesn't' and the base verb 'like'." },
+        { q: "What is the opposite of 'Ancient'?", options: ["Old", "Modern", "Historic", "Past"], ans: 1, exp: "Ancient means very old. The opposite is Modern (new/current)." },
+        { q: "A word that describes a noun is an:", options: ["Verb", "Adverb", "Adjective", "Pronoun"], ans: 2, exp: "Adjectives describe nouns (e.g., 'Blue' car, 'Tall' boy)." },
+        { q: "Which punctuation ends a question?", options: [".", "!", "?", ","], ans: 2, exp: "A question mark (?) goes at the end of a question." },
+        { q: "Choose the synonym for 'Happy':", options: ["Sad", "Angry", "Joyful", "Tired"], ans: 2, exp: "Synonyms mean the same thing. Happy and Joyful mean the same." },
+        { q: "What is the past tense of 'Go'?", options: ["Goed", "Gone", "Went", "Going"], ans: 2, exp: "Go is irregular. Past tense is Went." },
+        { q: "Which is a conjunction?", options: ["And", "The", "Run", "Blue"], ans: 0, exp: "Conjunctions join words or sentences. 'And', 'But', 'Or' are conjunctions." }
+      ]
+    };
+
+    // APP STATE
+    let currentSubject = '';
+    let currentBatch = 0;
+    let totalBatches = 10; // 50 questions / 5 per batch
+    let userAnswers = {};
+
+    function showView(viewId) {
+      document.getElementById('subject-view').classList.add('hidden');
+      document.getElementById('quiz-view').classList.add('hidden');
+      document.getElementById('results-view').classList.add('hidden');
+      document.getElementById(viewId).classList.remove('hidden');
+      window.scrollTo(0, 0);
+    }
+
+    function startQuiz(subject) {
+      currentSubject = subject;
+      currentBatch = 0;
+      document.getElementById('subject-title').innerText = subject.charAt(0).toUpperCase() + subject.slice(1);
+      loadBatch();
+      showView('quiz-view');
+    }
+
+    function loadBatch() {      userAnswers = {};
+      const container = document.getElementById('questions-container');
+      container.innerHTML = '';
+      
+      document.getElementById('batch-title').innerText = `Batch ${currentBatch + 1} of ${totalBatches}`;
+      
+      const startIdx = currentBatch * 5;
+      const endIdx = startIdx + 5;
+      const batchQuestions = questionsDB[currentSubject].slice(startIdx, endIdx);
+
+      // If we run out of questions, show a finish screen
+      if (batchQuestions.length === 0) {
+        container.innerHTML = '<div style="text-align:center; padding:40px;"><h2> Exam Completed!</h2><p>You have finished all questions for this subject.</p></div>';
+        document.querySelector('.submit-btn').classList.add('hidden');
+        return;
+      }
+      document.querySelector('.submit-btn').classList.remove('hidden');
+
+      batchQuestions.forEach((q, index) => {
+        const globalIndex = startIdx + index;
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        
+        let optionsHTML = '';
+        q.options.forEach((opt, optIdx) => {
+          optionsHTML += `<div class="option" onclick="selectOption(${globalIndex}, ${optIdx}, this)">${String.fromCharCode(65 + optIdx)}) ${opt}</div>`;
+        });
+
+        card.innerHTML = `
+          <div class="q-text">${index + 1}. ${q.q}</div>
+          ${optionsHTML}
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function selectOption(qIndex, optIndex, element) {
+      userAnswers[qIndex] = optIndex;
+      const siblings = element.parentElement.querySelectorAll('.option');
+      siblings.forEach(sib => sib.classList.remove('selected'));
       element.classList.add('selected');
+    }
+
+    function submitBatch() {
+      const startIdx = currentBatch * 5;
+      const batchQuestions = questionsDB[currentSubject].slice(startIdx, startIdx + 5);
+      let score = 0;
+      let explanationsHTML = '';
+
+      batchQuestions.forEach((q, index) => {        const globalIndex = startIdx + index;
+        const userAns = userAnswers[globalIndex];
+        const isCorrect = userAns === q.ans;
+        if (isCorrect) score++;
+
+        explanationsHTML += `
+          <div class="explanation-card">
+            <div class="exp-q">${index + 1}. ${q.q}</div>
+            <div class="exp-ans">✅ Correct Answer: ${String.fromCharCode(65 + q.ans)}) ${q.options[q.ans]}</div>
+            <div class="exp-text">💡 ${q.exp}</div>
+          </div>
+        `;
+      });
+
+      document.getElementById('score-display').innerText = `${score}/5`;
+      document.getElementById('explanations-container').innerHTML = explanationsHTML;
+      
+      const nextBtn = document.getElementById('next-btn');
+      if (currentBatch + 1 >= totalBatches || batchQuestions.length < 5) {
+        nextBtn.innerText = "Finish Exam 🏁";
+      } else {
+        nextBtn.innerText = "Next 5 Questions ️";
+      }
+
+      showView('results-view');
+    }
+
+    function nextBatch() {
+      const startIdx = (currentBatch + 1) * 5;
+      if (startIdx >= questionsDB[currentSubject].length) {
+        alert("You have completed all available questions for this subject!");
+        showView('subject-view');
+      } else {
+        currentBatch++;
+        loadBatch();
+        showView('quiz-view');
+      }
     }
   </script>
 </body>
