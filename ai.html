@@ -15,10 +15,19 @@
     
     .chat-area { padding: 20px; display: flex; flex-direction: column; gap: 15px; min-height: 60vh; }
     
-    .message { padding: 12px 16px; border-radius: 16px; max-width: 85%; font-size: 15px; line-height: 1.5; word-wrap: break-word; }
-    .message.ai { background: white; color: #1E293B; align-self: flex-start; border-top-left-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .message { padding: 12px 16px; border-radius: 16px; max-width: 88%; font-size: 15px; line-height: 1.6; word-wrap: break-word; }
+    .message.ai { background: white; color: #1E293B; align-self: flex-start; border-top-left-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
     .message.user { background: #1E3A8A; color: white; align-self: flex-end; border-top-right-radius: 4px; }
     .message.error { background: #FEE2E2; color: #991B1B; align-self: center; font-size: 13px; border: 1px solid #FCA5A5; }
+
+    /* --- BEAUTIFUL TEACHER FORMATTING --- */
+    .big-text { font-size: 1.15em; font-weight: 800; color: #1E3A8A; display: block; margin-bottom: 5px; }
+    .handwritten { font-family: 'Comic Sans MS', 'Chalkboard SE', cursive; color: #2563EB; font-size: 1.05em; }
+    .underline { text-decoration: underline; text-decoration-color: #DC2626; text-underline-offset: 3px; font-weight: bold; }
+    .highlight-box { background: #FEF3C7; padding: 10px 12px; border-radius: 8px; border-left: 4px solid #F59E0B; margin: 10px 0; color: #78350F; }
+    .circle-bullet { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: #10B981; color: white; border-radius: 50%; margin-right: 8px; font-size: 12px; font-weight: bold; }
+    .red-text { color: #DC2626; font-weight: bold; }
+    .green-text { color: #059669; font-weight: bold; }
     
     .input-area { position: fixed; bottom: 60px; left: 0; right: 0; background: white; padding: 12px 15px; display: flex; align-items: center; border-top: 1px solid #E2E8F0; }
     .input-area input { flex: 1; padding: 12px; border: 1px solid #E2E8F0; background: #F1F5F9; border-radius: 25px; font-size: 16px; outline: none; }
@@ -32,13 +41,12 @@
 </head>
 <body>
   <div class="header">
-    <span class="header-icon">🤖</span>
+    <span class="header-icon"></span>
     <div>
       <h1>Professor LIGHT</h1>
       <div style="font-size: 12px; opacity: 0.8;">● Online • Your Personal Teacher</div>
     </div>
   </div>
-
   <div class="chat-area" id="chat-box">
     <div class="message ai">Hello! I am Professor LIGHT. ️<br>Ask me any question about Math, Science, or your exams! I will guide you step-by-step. 🧠</div>
   </div>
@@ -47,9 +55,10 @@
     <input type="text" id="user-input" placeholder="Ask a question...">
     <button onclick="sendMessage()">➤</button>
   </div>
+
   <div class="bottom-nav">
-    <a href="/dashboard.html" class="nav-btn"><span class="nav-icon"></span>Home</a>
-    <a href="/learn.html" class="nav-btn"><span class="nav-icon">📚</span>Learn</a>
+    <a href="/dashboard.html" class="nav-btn"><span class="nav-icon">🏠</span>Home</a>
+    <a href="/learn.html" class="nav-btn"><span class="nav-icon"></span>Learn</a>
     <a href="/cbt.html" class="nav-btn"><span class="nav-icon">⚡</span>CBT</a>
     <a href="/ai.html" class="nav-btn active"><span class="nav-icon">🤖</span>AI</a>
     <a href="/profile.html" class="nav-btn"><span class="nav-icon">👤</span>Profile</a>
@@ -57,18 +66,28 @@
 
   <script>
     // THE TEACHER'S BRAIN (System Prompt)
-    const SYSTEM_PROMPT = `You are Professor LIGHT, a friendly, patient, and brilliant secondary school teacher in Nigeria. Your students are 12-15 years old (JSS3 to SS3).
+    const SYSTEM_PROMPT = `You are Professor LIGHT, a friendly, patient secondary school teacher in Nigeria for 12-15 year olds. 
 
 YOUR TEACHING RULES:
-1. BE A GUIDE: Don't just give the final answer immediately. Break it down step-by-step so they understand the 'why' and 'how'. Ask them checking questions if needed.
-2. USE SIMPLE LANGUAGE: Avoid big grammar. Explain like you are talking to a smart 13-year-old.
-3. USE NIGERIAN EXAMPLES: Relate concepts to everyday life. Use examples like buying data, playing football, cooking jollof rice, or market scenarios to explain Math, Physics, or Chemistry.
-4. BE ENCOURAGING: Praise them when they get it right. If they are wrong, gently correct them and say 'Let's try again'. Use emojis like , 👏, 🧠, 💡.
-5. EXAM FOCUS: Occasionally mention how this topic appears in WAEC, NECO, or UTME.
-6. KEEP IT BRIEF: Don't write long essays. Use short paragraphs and bullet points.
-7. STAY ON TOPIC: If a student asks something unrelated to school, politely say: 'I am here to help you ace your exams! Let's focus on your studies. What subject are we looking at today?'`;
+1. BE A GUIDE: Break things down step-by-step. 
+2. USE SIMPLE LANGUAGE: Explain like you are talking to a smart 13-year-old.
+3. USE NIGERIAN EXAMPLES: Relate concepts to everyday life (buying data, football, market scenarios).
+4. BE ENCOURAGING: Praise them when they get it right.
 
-    // CHAT MEMORY (So the AI remembers the conversation)
+FORMATTING RULES (VERY IMPORTANT):
+You must output your response using HTML tags to make it beautiful. DO NOT use markdown like ** or #. Use these exact HTML classes:
+- For main headings: <span class="big-text">HEADING HERE</span>
+- For key formulas or fun notes: <span class="handwritten">Note here</span>
+- To emphasize a keyword: <span class="underline">keyword</span>
+- For important rules or summaries, wrap them in: <div class="highlight-box">Important rule here</div>
+- For bullet points, use: <span class="circle-bullet">1</span> First point...
+- For wrong answers/mistakes: <span class="red-text">Wrong part</span>
+- For correct answers/success: <span class="green-text">Correct part</span>
+- Use CAPITAL LETTERS for major emphasis.
+
+Keep your answers brief, visually spaced out, and highly engaging.`;
+
+    // CHAT MEMORY
     let chatHistory = [
       { role: 'system', content: SYSTEM_PROMPT }
     ];
@@ -78,8 +97,6 @@ YOUR TEACHING RULES:
       const chatBox = document.getElementById('chat-box');
       const text = input.value.trim();
       if (text === "") return;
-
-      // 1. Add User Message to Screen
       const userMsg = document.createElement('div');
       userMsg.className = 'message user';
       userMsg.innerText = text;
@@ -87,17 +104,15 @@ YOUR TEACHING RULES:
       input.value = "";
       chatBox.scrollTop = chatBox.scrollHeight;
 
-      // 2. Add to Memory
       chatHistory.push({ role: 'user', content: text });
 
-      // 3. Show Typing Indicator
       const typingMsg = document.createElement('div');
       typingMsg.className = 'message ai';
       typingMsg.innerText = "🤔 Professor LIGHT is thinking...";
       chatBox.appendChild(typingMsg);
       chatBox.scrollTop = chatBox.scrollHeight;
+
       try {
-        // 4. Send to our Secret Server
         const response = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -113,13 +128,12 @@ YOUR TEACHING RULES:
 
         const data = await response.json();
         
-        // 5. Add AI Response to Screen
         const aiMsg = document.createElement('div');
         aiMsg.className = 'message ai';
-        aiMsg.innerText = data.reply;
+        // We use innerHTML now so the browser renders the beautiful formatting!
+        aiMsg.innerHTML = data.reply; 
         chatBox.appendChild(aiMsg);
 
-        // 6. Add AI Response to Memory
         chatHistory.push({ role: 'assistant', content: data.reply });
 
       } catch (error) {
@@ -131,7 +145,6 @@ YOUR TEACHING RULES:
       }
       chatBox.scrollTop = chatBox.scrollHeight;
     }
-
     document.getElementById('user-input').addEventListener('keypress', function (e) {
       if (e.key === 'Enter') sendMessage();
     });
