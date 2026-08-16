@@ -6,6 +6,8 @@
   <meta name="theme-color" content="#1E3A8A">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="logo.png">
+  <!-- This tool turns the AI's text into beautiful HTML safely -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { background-color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding-bottom: 140px; }
@@ -15,19 +17,37 @@
     
     .chat-area { padding: 20px; display: flex; flex-direction: column; gap: 15px; min-height: 60vh; }
     
-    .message { padding: 12px 16px; border-radius: 16px; max-width: 88%; font-size: 15px; line-height: 1.6; word-wrap: break-word; }
+    .message { 
+      padding: 12px 16px; border-radius: 16px; max-width: 88%; font-size: 15px; line-height: 1.6; word-wrap: break-word; 
+      position: relative; /* Needed for the copy button */
+    }
     .message.ai { background: white; color: #1E293B; align-self: flex-start; border-top-left-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
     .message.user { background: #1E3A8A; color: white; align-self: flex-end; border-top-right-radius: 4px; }
     .message.error { background: #FEE2E2; color: #991B1B; align-self: center; font-size: 13px; border: 1px solid #FCA5A5; }
 
-    /* --- BEAUTIFUL TEACHER FORMATTING --- */
-    .big-text { font-size: 1.15em; font-weight: 800; color: #1E3A8A; display: block; margin-bottom: 5px; }
-    .handwritten { font-family: 'Comic Sans MS', 'Chalkboard SE', cursive; color: #2563EB; font-size: 1.05em; }
-    .underline { text-decoration: underline; text-decoration-color: #DC2626; text-underline-offset: 3px; font-weight: bold; }
-    .highlight-box { background: #FEF3C7; padding: 10px 12px; border-radius: 8px; border-left: 4px solid #F59E0B; margin: 10px 0; color: #78350F; }
-    .circle-bullet { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: #10B981; color: white; border-radius: 50%; margin-right: 8px; font-size: 12px; font-weight: bold; }
-    .red-text { color: #DC2626; font-weight: bold; }
-    .green-text { color: #059669; font-weight: bold; }
+    /* --- COPY BUTTON STYLES --- */
+    .copy-btn {
+      position: absolute; top: 8px; right: 8px; background: #F1F5F9; border: none; 
+      border-radius: 50%; width: 26px; height: 26px; cursor: pointer; font-size: 12px; 
+      display: flex; align-items: center; justify-content: center; color: #64748B;
+      transition: all 0.2s;
+    }
+    .copy-btn:active { transform: scale(0.9); background: #E2E8F0; }
+
+    /* --- BEAUTIFUL TEACHER FORMATTING (Markdown Styles) --- */
+    .message.ai h3 { font-size: 1.15em; font-weight: 800; color: #1E3A8A; margin: 10px 0 5px 0; }
+    .message.ai strong { text-decoration: underline; text-decoration-color: #DC2626; text-underline-offset: 3px; font-weight: bold; color: #0F172A; }
+    .message.ai em { font-family: 'Comic Sans MS', 'Chalkboard SE', cursive; color: #2563EB; font-style: normal; }
+    .message.ai blockquote { 
+      background: #FEF3C7; padding: 10px 12px; border-radius: 8px; border-left: 4px solid #F59E0B; 
+      margin: 10px 0; color: #78350F; font-weight: 500;
+    }
+    .message.ai ul { padding-left: 20px; margin: 10px 0; }
+    .message.ai li { margin-bottom: 6px; list-style-type: none; position: relative; }
+    .message.ai li::before { 
+      content: '●'; color: #10B981; font-size: 12px; position: absolute; left: -18px; top: 2px; 
+    }
+    .message.ai p { margin-bottom: 8px; }    .message.ai p:last-child { margin-bottom: 0; }
     
     .input-area { position: fixed; bottom: 60px; left: 0; right: 0; background: white; padding: 12px 15px; display: flex; align-items: center; border-top: 1px solid #E2E8F0; }
     .input-area input { flex: 1; padding: 12px; border: 1px solid #E2E8F0; background: #F1F5F9; border-radius: 25px; font-size: 16px; outline: none; }
@@ -41,14 +61,15 @@
 </head>
 <body>
   <div class="header">
-    <span class="header-icon"></span>
+    <span class="header-icon">🤖</span>
     <div>
       <h1>Professor LIGHT</h1>
       <div style="font-size: 12px; opacity: 0.8;">● Online • Your Personal Teacher</div>
     </div>
   </div>
+
   <div class="chat-area" id="chat-box">
-    <div class="message ai">Hello! I am Professor LIGHT. ️<br>Ask me any question about Math, Science, or your exams! I will guide you step-by-step. 🧠</div>
+    <div class="message ai">Hello! I am Professor LIGHT. 🛡️<br>Ask me any question about Math, Science, or your exams! I will guide you step-by-step. 🧠</div>
   </div>
 
   <div class="input-area">
@@ -58,7 +79,7 @@
 
   <div class="bottom-nav">
     <a href="/dashboard.html" class="nav-btn"><span class="nav-icon">🏠</span>Home</a>
-    <a href="/learn.html" class="nav-btn"><span class="nav-icon"></span>Learn</a>
+    <a href="/learn.html" class="nav-btn"><span class="nav-icon">📚</span>Learn</a>
     <a href="/cbt.html" class="nav-btn"><span class="nav-icon">⚡</span>CBT</a>
     <a href="/ai.html" class="nav-btn active"><span class="nav-icon">🤖</span>AI</a>
     <a href="/profile.html" class="nav-btn"><span class="nav-icon">👤</span>Profile</a>
@@ -74,15 +95,11 @@ YOUR TEACHING RULES:
 3. USE NIGERIAN EXAMPLES: Relate concepts to everyday life (buying data, football, market scenarios).
 4. BE ENCOURAGING: Praise them when they get it right.
 
-FORMATTING RULES (VERY IMPORTANT):
-You must output your response using HTML tags to make it beautiful. DO NOT use markdown like ** or #. Use these exact HTML classes:
-- For main headings: <span class="big-text">HEADING HERE</span>
-- For key formulas or fun notes: <span class="handwritten">Note here</span>
-- To emphasize a keyword: <span class="underline">keyword</span>
-- For important rules or summaries, wrap them in: <div class="highlight-box">Important rule here</div>
-- For bullet points, use: <span class="circle-bullet">1</span> First point...
-- For wrong answers/mistakes: <span class="red-text">Wrong part</span>
-- For correct answers/success: <span class="green-text">Correct part</span>
+FORMATTING RULES (Use Markdown):
+- Use ### for main headings (Big Blue Text)- Use **bold** for keywords (They will get a Red Underline)
+- Use *italics* for fun notes or formulas (They will look Handwritten in Blue)
+- Use > for important summaries or rules (They will get a Yellow Highlight Box)
+- Use - for bullet points (They will get Green Circle bullets)
 - Use CAPITAL LETTERS for major emphasis.
 
 Keep your answers brief, visually spaced out, and highly engaging.`;
@@ -92,20 +109,51 @@ Keep your answers brief, visually spaced out, and highly engaging.`;
       { role: 'system', content: SYSTEM_PROMPT }
     ];
 
+    // COPY TO CLIPBOARD FUNCTION
+    function copyText(text, btn) {
+      navigator.clipboard.writeText(text).then(() => {
+        btn.innerHTML = '✅';
+        setTimeout(() => { btn.innerHTML = '📋'; }, 1500);
+      }).catch(err => {
+        console.error('Failed to copy: ', err);
+      });
+    }
+
+    // CREATE MESSAGE BUBBLE
+    function addMessage(text, role) {
+      const chatBox = document.getElementById('chat-box');
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `message ${role}`;
+      
+      // If it's the AI, convert Markdown to beautiful HTML. If user, just plain text.
+      if (role === 'ai') {
+        msgDiv.innerHTML = marked.parse(text);
+      } else {
+        msgDiv.innerText = text;
+      }
+
+      // Add the Copy Button
+      const copyBtn = document.createElement('button');
+      copyBtn.className = 'copy-btn';
+      copyBtn.innerHTML = '';
+      copyBtn.onclick = function() { copyText(text, copyBtn); };
+      msgDiv.appendChild(copyBtn);
+
+      chatBox.appendChild(msgDiv);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
     async function sendMessage() {
       const input = document.getElementById('user-input');
-      const chatBox = document.getElementById('chat-box');
-      const text = input.value.trim();
-      if (text === "") return;
-      const userMsg = document.createElement('div');
-      userMsg.className = 'message user';
-      userMsg.innerText = text;
-      chatBox.appendChild(userMsg);
-      input.value = "";
-      chatBox.scrollTop = chatBox.scrollHeight;
+      const text = input.value.trim();      if (text === "") return;
 
+      // 1. Show User Message
+      addMessage(text, 'user');
+      input.value = "";
       chatHistory.push({ role: 'user', content: text });
 
+      // 2. Show Typing Indicator
+      const chatBox = document.getElementById('chat-box');
       const typingMsg = document.createElement('div');
       typingMsg.className = 'message ai';
       typingMsg.innerText = "🤔 Professor LIGHT is thinking...";
@@ -113,6 +161,7 @@ Keep your answers brief, visually spaced out, and highly engaging.`;
       chatBox.scrollTop = chatBox.scrollHeight;
 
       try {
+        // 3. Send to Server
         const response = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -128,23 +177,16 @@ Keep your answers brief, visually spaced out, and highly engaging.`;
 
         const data = await response.json();
         
-        const aiMsg = document.createElement('div');
-        aiMsg.className = 'message ai';
-        // We use innerHTML now so the browser renders the beautiful formatting!
-        aiMsg.innerHTML = data.reply; 
-        chatBox.appendChild(aiMsg);
-
+        // 4. Show AI Message
+        addMessage(data.reply, 'ai');
         chatHistory.push({ role: 'assistant', content: data.reply });
 
       } catch (error) {
         chatBox.removeChild(typingMsg);
-        const errorMsg = document.createElement('div');
-        errorMsg.className = 'message error';
-        errorMsg.innerHTML = `⚠️ Error: ${error.message}`;
-        chatBox.appendChild(errorMsg);
+        addMessage(`⚠️ Error: ${error.message}`, 'error');
       }
-      chatBox.scrollTop = chatBox.scrollHeight;
     }
+
     document.getElementById('user-input').addEventListener('keypress', function (e) {
       if (e.key === 'Enter') sendMessage();
     });
