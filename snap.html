@@ -6,7 +6,6 @@
   <meta name="theme-color" content="#1E3A8A">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="logo.png">
-  <!-- This makes the AI's answer look beautiful -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -14,16 +13,26 @@
     .header { background: linear-gradient(135deg, #1E3A8A 0%, #172554 100%); color: white; padding: 15px 20px; display: flex; align-items: center; }
     .header h1 { font-size: 18px; margin: 0; margin-left: 10px; }
     .camera-area { padding: 20px; text-align: center; }
-    #camera-input { display: none; }
-    .snap-btn { background: #DC2626; color: white; border: none; padding: 15px 30px; border-radius: 30px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); display: inline-flex; align-items: center; gap: 10px; }
-    #image-preview { display: none; margin-top: 20px; width: 100%; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-height: 300px; object-fit: cover; }
+    #camera-input, #gallery-input { display: none; }
+    
+    .button-group { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .snap-btn, .upload-btn { 
+      border: none; padding: 15px 25px; border-radius: 30px; font-size: 16px; font-weight: bold; 
+      cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); display: inline-flex; align-items: center; gap: 10px; 
+    }
+    .snap-btn { background: #DC2626; color: white; }
+    .upload-btn { background: #10B981; color: white; }
+    
+    #image-preview { 
+      display: none; margin-top: 20px; width: 100%; border-radius: 15px; 
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-height: 300px; object-fit: contain; 
+    }
     .action-area { display: none; padding: 0 20px; margin-top: 20px; }
     .action-area textarea { width: 100%; padding: 15px; border: 1px solid #E2E8F0; border-radius: 12px; font-size: 16px; resize: none; height: 80px; }
     .solve-btn { background: #1E3A8A; color: white; width: 100%; padding: 15px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; margin-top: 10px; cursor: pointer; }
     .result-area { padding: 20px; }
     .ai-response { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); line-height: 1.6; font-size: 15px; }
     
-    /* Beautiful formatting for the AI answer */
     .ai-response h3 { font-size: 1.15em; font-weight: 800; color: #1E3A8A; margin: 10px 0 5px 0; }
     .ai-response strong { text-decoration: underline; text-decoration-color: #DC2626; text-underline-offset: 3px; font-weight: bold; }
     .ai-response em { font-family: 'Comic Sans MS', 'Chalkboard SE', cursive; color: #2563EB; font-style: normal; }
@@ -36,8 +45,9 @@
     .nav-btn { text-align: center; color: #94A3B8; text-decoration: none; font-size: 10px; flex: 1; }
     .nav-btn.active { color: #1E3A8A; font-weight: bold; }
     .nav-icon { font-size: 22px; display: block; margin-bottom: 4px; }
-  </style>
-</head>
+    
+    .error-box { background: #FEE2E2; color: #DC2626; padding: 12px; border-radius: 12px; margin-top: 10px; font-size: 14px; }
+  </style></head>
 <body>
   <div class="header">
     <span style="font-size: 24px;">📸</span>
@@ -45,9 +55,16 @@
   </div>
 
   <div class="camera-area">
-    <button class="snap-btn" onclick="document.getElementById('camera-input').click()"> Take Photo of Problem</button>
-    <input type="file" id="camera-input" accept="image/*" capture="environment" onchange="showPreview(event)">
-    <img id="image-preview" alt="Problem Preview">  </div>
+    <div class="button-group">
+      <button class="snap-btn" onclick="document.getElementById('camera-input').click()">📸 Take Photo</button>
+      <button class="upload-btn" onclick="document.getElementById('gallery-input').click()">🖼️ Upload from Gallery</button>
+    </div>
+    
+    <input type="file" id="camera-input" accept="image/*" capture="environment" onchange="handleImage(event)">
+    <input type="file" id="gallery-input" accept="image/*" onchange="handleImage(event)">
+    
+    <img id="image-preview" alt="Problem Preview">
+  </div>
 
   <div class="action-area" id="action-area">
     <textarea id="question-text" placeholder="Tell Professor LIGHT what to do (e.g., 'Solve this step-by-step')"></textarea>
@@ -60,45 +77,56 @@
   </div>
 
   <div class="bottom-nav">
-    <a href="/dashboard.html" class="nav-btn"><span class="nav-icon">🏠</span>Home</a>
-    <a href="/learn.html" class="nav-btn"><span class="nav-icon"></span>Learn</a>
-    <a href="/cbt.html" class="nav-btn"><span class="nav-icon">⚡</span>CBT</a>
+    <a href="/dashboard.html" class="nav-btn"><span class="nav-icon"></span>Home</a>
+    <a href="/learn.html" class="nav-btn"><span class="nav-icon">📚</span>Learn</a>
+    <a href="/cbt.html" class="nav-btn"><span class="nav-icon"></span>CBT</a>
     <a href="/ai.html" class="nav-btn"><span class="nav-icon">🤖</span>AI</a>
     <a href="/profile.html" class="nav-btn"><span class="nav-icon">👤</span>Profile</a>
   </div>
 
   <script>
-    function showPreview(event) {
+    function handleImage(event) {
       const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const img = document.getElementById('image-preview');
-          img.src = e.target.result; // This creates the base64 image data
-          img.style.display = 'block';
-          document.getElementById('action-area').style.display = 'block';
-          document.getElementById('result-area').style.display = 'none';
-        }
-        reader.readAsDataURL(file);
+      if (!file) return;
+      
+      // Check file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Image is too large! Please choose an image smaller than 5MB.");
+        return;
       }
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {        const img = document.getElementById('image-preview');
+        img.src = e.target.result;
+        img.style.display = 'block';
+        document.getElementById('action-area').style.display = 'block';
+        document.getElementById('result-area').style.display = 'none';
+      }
+      reader.onerror = function() {
+        alert("Error reading image. Please try again.");
+      }
+      reader.readAsDataURL(file);
     }
 
     async function askAI() {
-      const text = document.getElementById('question-text').value || "Solve this problem step-by-step.";
+      const text = document.getElementById('question-text').value || "Solve this problem step-by-step and explain it simply.";
       const imgSrc = document.getElementById('image-preview').src;
       
-      if (!imgSrc || imgSrc === window.location.href) return alert("Please take a photo first!");
+      if (!imgSrc || imgSrc === window.location.href) {
+        alert("Please take or upload a photo first!");
+        return;
+      }
 
       document.getElementById('result-area').style.display = 'block';
       document.getElementById('ai-response').innerHTML = "🤔 Professor LIGHT is looking at your photo and thinking...";
 
-      // This is the magic format for Vision AI
       const visionMessages = [
         {
           role: 'user',
-          content: [            { 
+          content: [
+            { 
               type: 'text', 
-              text: `You are Professor LIGHT, a friendly teacher for 12-15 year olds. The student uploaded this picture. ${text} Explain the solution simply, step-by-step, using Nigerian examples if possible. Use markdown for beautiful formatting.` 
+              text: `You are Professor LIGHT, a friendly teacher for 12-15 year olds. The student uploaded this picture of a problem. ${text} Explain the solution simply, step-by-step, using Nigerian examples if possible. Use markdown for beautiful formatting.` 
             },
             { 
               type: 'image_url', 
@@ -109,23 +137,41 @@
       ];
 
       try {
-        // We send it to our secret server, but tell it to use the VISION model!
         const response = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
             messages: visionMessages,
-            model: 'llama-3.2-11b-vision-preview' // This is the model that can SEE!
+            model: 'llama-3.2-11b-vision-preview'
           })
         });
+                // Check if response is OK
+        if (!response.ok) {
+          const errorText = await response.text();
+          let errorMessage = "Connection error. Please try again.";
+          
+          try {
+            const errorData = JSON.parse(errorText);
+            errorMessage = errorData.error || errorMessage;
+          } catch(e) {
+            // If it's not JSON, use the text
+            if (errorText.includes('Request Entity Too Large')) {
+              errorMessage = "Image is too large! Please take a clearer photo with less background or upload a smaller image.";
+            }
+          }
+          throw new Error(errorMessage);
+        }
         
         const data = await response.json();
-        if (!response.ok) throw new Error(data.error || 'Failed to connect');
-        
-        // Convert the markdown answer into beautiful HTML
         document.getElementById('ai-response').innerHTML = marked.parse(data.reply);
       } catch (error) {
-        document.getElementById('ai-response').innerHTML = `⚠️ Error: ${error.message}`;
+        document.getElementById('ai-response').innerHTML = `
+          <div class="error-box">
+            <strong>️ Error:</strong><br>
+            ${error.message}<br><br>
+            <small>Tips: Make sure the photo is clear and not too large. Try taking a photo in good lighting.</small>
+          </div>
+        `;
       }
     }
   </script>
