@@ -1,4 +1,4 @@
-const CACHE_NAME = 'light-edu-v1';
+const CACHE_NAME = 'light-edu-v2';
 const urlsToCache = [
   'index.html',
   'dashboard.html',
