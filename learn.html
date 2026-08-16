@@ -6,47 +6,188 @@
   <meta name="theme-color" content="#1E3A8A">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="logo.png">
+  <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { background-color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; color: #1E293B; padding-bottom: 80px; }
     .header { background: linear-gradient(135deg, #1E3A8A 0%, #172554 100%); color: white; padding: 20px; text-align: center; border-bottom-left-radius: 25px; border-bottom-right-radius: 25px; }
     .header h1 { font-size: 22px; margin: 0; }
-    .subject-card { background: white; margin: 15px; padding: 20px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-decoration: none; color: #1E3A8A; }
-    .subject-left { display: flex; align-items: center; gap: 15px; }
-    .subject-icon { font-size: 30px; background: #F1F5F9; padding: 10px; border-radius: 12px; }
-    .subject-name { font-size: 18px; font-weight: bold; }
-    .subject-meta { font-size: 12px; color: #64748B; }
+    
+    .subject-section { margin: 20px; }
+    .subject-title { 
+      font-size: 18px; 
+      font-weight: bold; 
+      color: #1E3A8A; 
+      margin-bottom: 15px;
+      padding-left: 10px;
+      border-left: 4px solid #DC2626;
+    }
+    
+    .class-grid { 
+      display: grid; 
+      grid-template-columns: repeat(3, 1fr); 
+      gap: 12px; 
+      margin-bottom: 25px;
+    }
+    
+    .class-card {
+      background: white;
+      border-radius: 12px;
+      padding: 15px 10px;
+      text-align: center;
+      text-decoration: none;
+      color: white;
+      font-weight: bold;
+      font-size: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .class-card:active { transform: scale(0.95); }
+        .class-icon { font-size: 28px; }
+    
+    /* Progressive Colors for Classes */
+    .ss1 { background: linear-gradient(135deg, #10B981 0%, #059669 100%); }
+    .ss2 { background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); }
+    .ss3 { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); }
+    
     .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px 0 15px; border-top: 1px solid #E2E8F0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100; }
     .nav-btn { text-align: center; color: #94A3B8; text-decoration: none; font-size: 10px; flex: 1; }
     .nav-btn.active { color: #1E3A8A; font-weight: bold; }
     .nav-icon { font-size: 22px; display: block; margin-bottom: 4px; }
+    
+    .coming-soon { 
+      background: #FEF3C7; 
+      color: #D97706; 
+      padding: 3px 8px; 
+      border-radius: 6px; 
+      font-size: 10px;
+      font-weight: normal;
+    }
   </style>
 </head>
 <body>
-  <div class="header"><h1>📚 My Subjects</h1></div>
+  <div class="header">
+    <h1>📚 Choose Your Subject & Class</h1>
+  </div>
 
-  <a href="#" class="subject-card">
-    <div class="subject-left"><span class="subject-icon">📐</span><div><div class="subject-name">Mathematics</div><div class="subject-meta">45 Topics • 80% Complete</div></div></div>
-    <span style="color:#94A3B8; font-size:20px;">›</span>
-  </a>
-  <a href="#" class="subject-card">
-    <div class="subject-left"><span class="subject-icon">⚛️</span><div><div class="subject-name">Physics</div><div class="subject-meta">32 Topics • 65% Complete</div></div></div>
-    <span style="color:#94A3B8; font-size:20px;">›</span>
-  </a>
-  <a href="#" class="subject-card">
-    <div class="subject-left"><span class="subject-icon"></span><div><div class="subject-name">Chemistry</div><div class="subject-meta">28 Topics • 50% Complete</div></div></div>
-    <span style="color:#94A3B8; font-size:20px;">›</span>
-  </a>
-  <a href="#" class="subject-card">
-    <div class="subject-left"><span class="subject-icon">🧬</span><div><div class="subject-name">Biology</div><div class="subject-meta">30 Topics • 45% Complete</div></div></div>
-    <span style="color:#94A3B8; font-size:20px;">›</span>
-  </a>
+  <!-- MATHEMATICS -->
+  <div class="subject-section">
+    <div class="subject-title">📐 Mathematics</div>
+    <div class="class-grid">
+      <a href="#" class="class-card ss1" onclick="alert('Google Drive link for Math SS1 will go here!')">
+        <span class="class-icon"></span>
+        <span>SS1</span>
+        <span class="coming-soon">E-Notes</span>
+      </a>
+      <a href="#" class="class-card ss2" onclick="alert('Google Drive link for Math SS2 will go here!')">
+        <span class="class-icon">📗</span>
+        <span>SS2</span>
+        <span class="coming-soon">E-Notes</span>
+      </a>
+      <a href="#" class="class-card ss3" onclick="alert('Google Drive link for Math SS3 will go here!')">
+        <span class="class-icon">📙</span>
+        <span>SS3</span>
+        <span class="coming-soon">E-Notes</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- PHYSICS -->  <div class="subject-section">
+    <div class="subject-title">⚛️ Physics</div>
+    <div class="class-grid">
+      <a href="#" class="class-card ss1" onclick="alert('Google Drive link for Physics SS1 will go here!')">
+        <span class="class-icon">🔬</span>
+        <span>SS1</span>
+        <span class="coming-soon">E-Notes</span>
+      </a>
+      <a href="#" class="class-card ss2" onclick="alert('Google Drive link for Physics SS2 will go here!')">
+        <span class="class-icon">🔭</span>
+        <span>SS2</span>
+        <span class="coming-soon">E-Notes</span>
+      </a>
+      <a href="#" class="class-card ss3" onclick="alert('Google Drive link for Physics SS3 will go here!')">
+        <span class="class-icon">⚡</span>
+        <span>SS3</span>
+        <span class="coming-soon">E-Notes</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- CHEMISTRY -->
+  <div class="subject-section">
+    <div class="subject-title">🧪 Chemistry</div>
+    <div class="class-grid">
+      <a href="#" class="class-card ss1" onclick="alert('Google Drive link for Chemistry SS1 will go here!')">
+        <span class="class-icon">⚗️</span>
+        <span>SS1</span>
+        <span class="coming-soon">E-Notes</span>
+      </a>
+      <a href="#" class="class-card ss2" onclick="alert('Google Drive link for Chemistry SS2 will go here!')">
+        <span class="class-icon">🧬</span>
+        <span>SS2</span>
+        <span class="coming-soon">E-Notes</span>
+      </a>
+      <a href="#" class="class-card ss3" onclick="alert('Google Drive link for Chemistry SS3 will go here!')">
+        <span class="class-icon"></span>
+        <span>SS3</span>
+        <span class="coming-soon">E-Notes</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- BIOLOGY -->
+  <div class="subject-section">
+    <div class="subject-title">🧬 Biology</div>
+    <div class="class-grid">
+      <a href="#" class="class-card ss1" onclick="alert('Google Drive link for Biology SS1 will go here!')">
+        <span class="class-icon"></span>
+        <span>SS1</span>        <span class="coming-soon">E-Notes</span>
+      </a>
+      <a href="#" class="class-card ss2" onclick="alert('Google Drive link for Biology SS2 will go here!')">
+        <span class="class-icon">🦴</span>
+        <span>SS2</span>
+        <span class="coming-soon">E-Notes</span>
+      </a>
+      <a href="#" class="class-card ss3" onclick="alert('Google Drive link for Biology SS3 will go here!')">
+        <span class="class-icon">🫀</span>
+        <span>SS3</span>
+        <span class="coming-soon">E-Notes</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- ENGLISH LANGUAGE -->
+  <div class="subject-section">
+    <div class="subject-title">📖 English Language</div>
+    <div class="class-grid">
+      <a href="#" class="class-card ss1" onclick="alert('Google Drive link for English SS1 will go here!')">
+        <span class="class-icon">📝</span>
+        <span>SS1</span>
+        <span class="coming-soon">E-Notes</span>
+      </a>
+      <a href="#" class="class-card ss2" onclick="alert('Google Drive link for English SS2 will go here!')">
+        <span class="class-icon">️</span>
+        <span>SS2</span>
+        <span class="coming-soon">E-Notes</span>
+      </a>
+      <a href="#" class="class-card ss3" onclick="alert('Google Drive link for English SS3 will go here!')">
+        <span class="class-icon">📚</span>
+        <span>SS3</span>
+        <span class="coming-soon">E-Notes</span>
+      </a>
+    </div>
+  </div>
 
   <div class="bottom-nav">
-    <a href="dashboard.html" class="nav-btn"><span class="nav-icon">🏠</span>Home</a>
-    <a href="learn.html" class="nav-btn active"><span class="nav-icon">📚</span>Learn</a>
-    <a href="cbt.html" class="nav-btn"><span class="nav-icon">⚡</span>CBT</a>
-    <a href="ai.html" class="nav-btn"><span class="nav-icon">💬</span>AI</a>
-    <a href="profile.html" class="nav-btn"><span class="nav-icon">👤</span>Profile</a>
+    <a href="/dashboard.html" class="nav-btn"><span class="nav-icon"></span>Home</a>
+    <a href="/learn.html" class="nav-btn active"><span class="nav-icon">📚</span>Learn</a>
+    <a href="/cbt.html" class="nav-btn"><span class="nav-icon">⚡</span>CBT</a>
+    <a href="/ai.html" class="nav-btn"><span class="nav-icon">💬</span>AI</a>
+    <a href="/profile.html" class="nav-btn"><span class="nav-icon">👤</span>Profile</a>
   </div>
 </body>
 </html>
