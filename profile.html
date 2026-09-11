@@ -6,25 +6,36 @@
   <meta name="theme-color" content="#1E3A8A">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="logo.png">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { background-color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; color: #1E293B; padding-bottom: 80px; }
-    .profile-header { background: linear-gradient(135deg, #1E3A8A 0%, #172554 100%); color: white; padding: 30px 20px; text-align: center; border-bottom-left-radius: 25px; border-bottom-right-radius: 25px; }
-    .avatar { width: 90px; height: 90px; background: white; border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 45px; border: 4px solid #FCA5A5; }
-    .name { font-size: 22px; font-weight: bold; margin-bottom: 5px; }
-    .class-text { font-size: 14px; opacity: 0.9; margin-bottom: 10px; }
-    .premium-badge { background: #F59E0B; color: white; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block; }
-    .stats-row { display: flex; justify-content: space-around; background: white; margin: -20px 20px 20px; padding: 15px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    
+    .header { background: linear-gradient(135deg, #1E3A8A 0%, #172554 100%); color: white; padding: 30px 20px 40px; text-align: center; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; }
+    .avatar { width: 80px; height: 80px; background: white; color: #1E3A8A; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; margin: 0 auto 15px; border: 4px solid rgba(255,255,255,0.3); }
+    .user-name { font-size: 22px; font-weight: bold; margin-bottom: 5px; }
+    .user-email { font-size: 14px; opacity: 0.8; }
+
+    .container { padding: 0 20px; margin-top: -25px; }
+    
+    .stats-card { background: white; border-radius: 16px; padding: 20px; display: flex; justify-content: space-around; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 25px; }
     .stat-item { text-align: center; }
-    .stat-val { font-size: 18px; font-weight: bold; color: #1E3A8A; display: block; }
-    .stat-lbl { font-size: 11px; color: #64748B; }
-    .settings-list { background: white; margin: 0 20px; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    .setting-item { display: flex; justify-content: space-between; align-items: center; padding: 18px 20px; border-bottom: 1px solid #F1F5F9; text-decoration: none; color: #1E293B; font-size: 15px; }
-    .setting-item:last-child { border-bottom: none; }
-    .setting-left { display: flex; align-items: center; gap: 15px; }
-    .setting-icon { font-size: 20px; width: 25px; text-align: center; }
-    .arrow { color: #94A3B8; }
-    .logout-btn { display: block; width: calc(100% - 40px); margin: 30px auto; padding: 15px; background: #FEE2E2; color: #DC2626; text-align: center; border-radius: 12px; text-decoration: none; font-weight: bold; font-size: 16px; }
+    .stat-num { font-size: 24px; font-weight: 800; color: #1E3A8A; display: block; }
+    .stat-label { font-size: 12px; color: #64748B; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    .menu-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; }
+    .menu-item { display: flex; align-items: center; padding: 16px 20px; border-bottom: 1px solid #F1F5F9; text-decoration: none; color: #1E293B; transition: 0.2s; }
+    .menu-item:last-child { border-bottom: none; }
+    .menu-item:active { background: #F8FAFC; }
+    .menu-icon { font-size: 20px; width: 30px; text-align: center; margin-right: 15px; }
+    .menu-text { flex: 1; font-size: 15px; font-weight: 500; }
+    .menu-arrow { color: #94A3B8; font-size: 18px; }
+
+    .logout-btn { width: 100%; padding: 16px; background: #FEE2E2; color: #DC2626; border: none; border-radius: 16px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.2s; }
+    .logout-btn:active { background: #FECACA; transform: scale(0.98); }
+
+    .loading { text-align: center; padding: 40px; color: #64748B; }
+
     .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px 0 15px; border-top: 1px solid #E2E8F0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100; }
     .nav-btn { text-align: center; color: #94A3B8; text-decoration: none; font-size: 10px; flex: 1; }
     .nav-btn.active { color: #1E3A8A; font-weight: bold; }
@@ -32,36 +43,123 @@
   </style>
 </head>
 <body>
-  <div class="profile-header">
-    <div class="avatar">👨‍🎓</div>
-    <div class="name">Akinsuroju Light</div>
-    <div class="class-text">SS2 Science • WAEC 2026</div>
-    <div class="premium-badge"> PREMIUM MEMBER</div>
-  </div>
 
-  <div class="stats-row">
-    <div class="stat-item"><span class="stat-val">124</span><span class="stat-lbl">Hours</span></div>
-    <div class="stat-item"><span class="stat-val">67</span><span class="stat-lbl">Topics</span></div>
-    <div class="stat-item"><span class="stat-val">#234</span><span class="stat-lbl">Rank</span></div>
-  </div>
+  <div class="header">
+    <div class="avatar" id="user-avatar">👤</div>
+    <div class="user-name" id="user-name">Loading...</div>
+    <div class="user-email" id="user-email">Please wait</div>  </div>
 
-  <div class="settings-list">
-    <a href="#" class="setting-item"><div class="setting-left"><span class="setting-icon">👨‍👩‍👧</span> Parent Dashboard</div><span class="arrow">›</span></a>
-    <a href="#" class="setting-item"><div class="setting-left"><span class="setting-icon"></span> Subscription</div><span class="arrow">›</span></a>
-    <a href="#" class="setting-item"><div class="setting-left"><span class="setting-icon">🔔</span> Notifications</div><span class="arrow">›</span></a>
-    <a href="#" class="setting-item"><div class="setting-left"><span class="setting-icon">📥</span> Downloads</div><span class="arrow">›</span></a>
-    <a href="#" class="setting-item"><div class="setting-left"><span class="setting-icon">️</span> Settings</div><span class="arrow">›</span></a>
-    <a href="#" class="setting-item"><div class="setting-left"><span class="setting-icon">❓</span> Help & Support</div><span class="arrow">›</span></a>
-  </div>
+  <div class="container">
+    <!-- Stats Section -->
+    <div class="stats-card">
+      <div class="stat-item">
+        <span class="stat-num" id="stat-bookmarks">0</span>
+        <span class="stat-label">Bookmarks</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num" id="stat-completed">0</span>
+        <span class="stat-label">Completed</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">🔥</span>
+        <span class="stat-label">Streak</span>
+      </div>
+    </div>
 
-  <a href="index.html" class="logout-btn">Log Out</a>
+    <!-- Settings Menu -->
+    <div class="menu-card">
+      <a href="#" class="menu-item">
+        <span class="menu-icon">⚙️</span>
+        <span class="menu-text">App Settings</span>
+        <span class="menu-arrow">›</span>
+      </a>
+      <a href="#" class="menu-item">
+        <span class="menu-icon">❓</span>
+        <span class="menu-text">Help & Support</span>
+        <span class="menu-arrow">›</span>
+      </a>
+      <a href="#" class="menu-item">
+        <span class="menu-icon">ℹ️</span>
+        <span class="menu-text">About Light Edu</span>
+        <span class="menu-arrow">›</span>
+      </a>
+    </div>
+
+    <!-- Logout Button -->
+    <button class="logout-btn" onclick="handleLogout()">
+      <span>🚪</span> Log Out
+    </button>
+    
+    <p style="text-align: center; color: #94A3B8; font-size: 12px; margin-top: 20px;">Light Edu App v1.0</p>
+  </div>
 
   <div class="bottom-nav">
-    <a href="dashboard.html" class="nav-btn"><span class="nav-icon"></span>Home</a>
-    <a href="learn.html" class="nav-btn"><span class="nav-icon">📚</span>Learn</a>
-    <a href="cbt.html" class="nav-btn"><span class="nav-icon"></span>CBT</a>
-    <a href="ai.html" class="nav-btn"><span class="nav-icon">💬</span>AI</a>
-    <a href="profile.html" class="nav-btn active"><span class="nav-icon">👤</span>Profile</a>
+    <a href="/dashboard.html" class="nav-btn"><span class="nav-icon">🏠</span>Home</a>
+    <a href="/learn.html" class="nav-btn"><span class="nav-icon">📚</span>Learn</a>
+    <a href="/cbt.html" class="nav-btn"><span class="nav-icon">⚡</span>CBT</a>    <a href="/ai.html" class="nav-btn"><span class="nav-icon">🤖</span>AI</a>
+    <a href="/profile.html" class="nav-btn active"><span class="nav-icon">👤</span>Profile</a>
   </div>
+
+  <script>
+    const SUPABASE_URL = 'https://euffgftvbpntbbfibqtx.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1ZmZnZnR2YnBudGJiZmlicXR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMzk0NDQsImV4cCI6MjEwNDYxNTQ0NH0.LO7skAj0-OejT5nK1AV_0EMtv8k5VF4yQMRja26TiDQ';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function loadProfile() {
+      // 1. Check if user is logged in
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError || !user) {
+        // Not logged in, redirect to auth page
+        window.location.href = 'auth.html';
+        return;
+      }
+
+      // 2. Display User Info
+      const emailPrefix = user.email ? user.email.split('@')[0] : 'Student';
+      const displayName = emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1);
+      
+      document.getElementById('user-name').innerText = displayName;
+      document.getElementById('user-email').innerText = user.email;
+      document.getElementById('user-avatar').innerText = displayName.charAt(0).toUpperCase();
+
+      // 3. Fetch Real Stats from Database
+      try {
+        const { count: bookmarkCount } = await supabase
+          .from('bookmarks')
+          .select('*', { count: 'exact', head: true })
+          .eq('student_id', user.id);
+        
+        const { count: completedCount } = await supabase
+          .from('note_progress')
+          .select('*', { count: 'exact', head: true })
+          .eq('student_id', user.id)
+          .eq('completed', true);
+
+        document.getElementById('stat-bookmarks').innerText = bookmarkCount || 0;
+        document.getElementById('stat-completed').innerText = completedCount || 0;
+      } catch (err) {
+        console.log("Stats fetch error (normal if tables are empty):", err);
+      }
+    }
+
+    async function handleLogout() {
+      // Show loading state
+      const btn = document.querySelector('.logout-btn');      btn.innerHTML = '<span>⏳</span> Logging out...';
+      btn.disabled = true;
+
+      // 1. Sign out from Supabase
+      await supabase.auth.signOut();
+      
+      // 2. Clear any local storage
+      localStorage.clear();
+      
+      // 3. Redirect to login page
+      window.location.href = 'auth.html';
+    }
+
+    // Run on page load
+    loadProfile();
+  </script>
 </body>
 </html>
