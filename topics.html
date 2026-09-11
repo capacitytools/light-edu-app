@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Topics - Light Edu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1E3A8A">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="logo.png">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background-color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; color: #1E293B; padding-bottom: 80px; }
+    .header { background: linear-gradient(135deg, #1E3A8A 0%, #172554 100%); color: white; padding: 20px; display: flex; align-items: center; gap: 15px; }
+    .back-btn { background: rgba(255,255,255,0.2); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; font-size: 18px; cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; }
+    .header h1 { font-size: 18px; margin: 0; }
+    .container { padding: 20px; }
+    
+    .topic-card { 
+      background: white; border-radius: 16px; padding: 20px; margin-bottom: 15px; 
+      text-decoration: none; color: #1E293B; box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
+      display: flex; align-items: center; gap: 15px; transition: transform 0.2s; border-left: 4px solid #1E3A8A;
+    }
+    .topic-card:active { transform: scale(0.98); background: #F8FAFC; }
+    .topic-num { font-size: 20px; font-weight: bold; color: #1E3A8A; width: 30px; }
+    .topic-info { flex: 1; }
+    .topic-name { font-size: 16px; font-weight: bold; color: #1E293B; }
+    .topic-desc { font-size: 13px; color: #64748B; margin-top: 4px; }
+    
+    .loading, .error, .empty { text-align: center; padding: 40px 20px; color: #64748B; font-size: 15px; background: white; border-radius: 12px; }
+    .error { color: #DC2626; background: #FEE2E2; border: 1px solid #FCA5A5; }
+
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px 0 15px; border-top: 1px solid #E2E8F0; z-index: 100; }
+    .nav-btn { text-align: center; color: #94A3B8; text-decoration: none; font-size: 10px; flex: 1; }
+    .nav-btn.active { color: #1E3A8A; font-weight: bold; }
+    .nav-icon { font-size: 22px; display: block; margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <a href="javascript:history.back()" class="back-btn">←</a>
+    <h1 id="page-title">Topics</h1>
+  </div>
+
+  <div class="container" id="topics-container">
+    <div class="loading">⏳ Loading topics...</div>
+  </div>
+
+  <div class="bottom-nav">
+    <a href="/dashboard.html" class="nav-btn"><span class="nav-icon"></span>Home</a>
+    <a href="/learn.html" class="nav-btn active"><span class="nav-icon">📚</span>Learn</a>    <a href="/cbt.html" class="nav-btn"><span class="nav-icon">⚡</span>CBT</a>
+    <a href="/ai.html" class="nav-btn"><span class="nav-icon">🤖</span>AI</a>
+    <a href="/profile.html" class="nav-btn"><span class="nav-icon">👤</span>Profile</a>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://euffgftvbpntbbfibqtx.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1ZmZnZnR2YnBudGJiZmlicXR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMzk0NDQsImV4cCI6MjEwNDYxNTQ0NH0.LO7skAj0-OejT5nK1AV_0EMtv8k5VF4yQMRja26TiDQ';
+    
+    window.addEventListener('load', () => {
+      if (!window.supabase) {
+        document.getElementById('topics-container').innerHTML = '<div class="error">⚠️ Supabase library failed to load.</div>';
+        return;
+      }
+
+      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      const urlParams = new URLSearchParams(window.location.search);
+      const className = urlParams.get('class') || 'SS1';
+      const subjectName = urlParams.get('subject') || 'Mathematics';
+      
+      document.getElementById('page-title').innerText = `${className} ${subjectName}`;
+      const container = document.getElementById('topics-container');
+
+      const timeout = setTimeout(() => {
+        if (container.innerHTML.includes('Loading')) {
+          container.innerHTML = '<div class="error">⚠️ Connection timed out.</div>';
+        }
+      }, 10000);
+
+      async function loadTopics() {
+        try {
+          // 1. Get Class ID
+          const { data: classData, error: classError } = await supabase.from('classes').select('id').eq('name', className).single();
+          if (classError) throw classError;
+
+          // 2. Get Subject ID
+          const { data: subjectData, error: subjectError } = await supabase.from('subjects').select('id').eq('name', subjectName).single();
+          if (subjectError) throw subjectError;
+
+          // 3. Fetch Topics for this Class and Subject
+          const { data: topics, error: topicsError } = await supabase
+            .from('topics')
+            .select('id, name, slug, description, sort_order')
+            .eq('class_id', classData.id)
+            .eq('subject_id', subjectData.id)
+            .order('sort_order');
+
+          if (topicsError) throw topicsError;
+          clearTimeout(timeout);
+          if (!topics || topics.length === 0) {
+            container.innerHTML = `<div class="empty">📭 No topics added for <strong>${subjectName}</strong> yet.<br><br>Check back soon!</div>`;
+            return;
+          }
+
+          container.innerHTML = ''; 
+
+          topics.forEach((topic, index) => {
+            const card = document.createElement('a');
+            card.className = 'topic-card';
+            // For now, this links to a placeholder. We will build the lessons page next!
+            card.href = `lessons.html?class=${encodeURIComponent(className)}&subject=${encodeURIComponent(subjectName)}&topic=${encodeURIComponent(topic.name)}`;
+            
+            card.innerHTML = `
+              <div class="topic-num">${index + 1}</div>
+              <div class="topic-info">
+                <div class="topic-name">${topic.name}</div>
+                ${topic.description ? `<div class="topic-desc">${topic.description}</div>` : ''}
+              </div>
+              <span style="color: #94A3B8; font-size: 20px;">›</span>
+            `;
+            container.appendChild(card);
+          });
+
+        } catch (error) {
+          clearTimeout(timeout);
+          container.innerHTML = `<div class="error">⚠️ Error:<br>${error.message}</div>`;
+        }
+      }
+      loadTopics();
+    });
+  </script>
+</body>
+</html>
