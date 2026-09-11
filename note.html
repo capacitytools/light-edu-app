@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Lesson - Light Edu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1E3A8A">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="logo.png">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background-color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; color: #1E293B; padding-bottom: 80px; line-height: 1.6; }
+    .header { background: linear-gradient(135deg, #1E3A8A 0%, #172554 100%); color: white; padding: 20px; display: flex; align-items: center; gap: 15px; }
+    .back-btn { background: rgba(255,255,255,0.2); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; font-size: 18px; cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; }
+    .header h1 { font-size: 16px; margin: 0; }
+    .container { padding: 20px; max-width: 800px; margin: 0 auto; }
+    
+    .breadcrumb { font-size: 13px; color: #64748B; margin-bottom: 15px; }
+    .breadcrumb a { color: #1E3A8A; text-decoration: none; }
+    
+    .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }
+    .badge { font-size: 12px; padding: 4px 10px; border-radius: 20px; font-weight: bold; }
+    .badge-exam { background: #E0E7FF; color: #3730A3; }
+    .badge-diff { background: #FEF3C7; color: #D97706; }
+    .badge-time { background: #F1F5F9; color: #475569; }
+
+    h1.lesson-title { font-size: 26px; font-weight: 800; color: #1E3A8A; margin-bottom: 10px; line-height: 1.3; }
+    .lesson-desc { font-size: 16px; color: #475569; margin-bottom: 20px; }
+    
+    .ask-ai-btn { display: block; width: 100%; background: linear-gradient(135deg, #F59E0B, #D97706); color: white; text-align: center; padding: 14px; border-radius: 12px; text-decoration: none; font-weight: bold; font-size: 16px; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3); }
+
+    .section-card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .section-title { font-size: 18px; font-weight: bold; color: #1E3A8A; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    
+    ul.custom-list { padding-left: 20px; margin: 10px 0; }
+    ul.custom-list li { margin-bottom: 8px; font-size: 15px; }
+
+    .key-points { background: #FEF3C7; border-left: 4px solid #F59E0B; }
+    .key-points .section-title { color: #92400E; }
+    
+    .mistakes { background: #FEE2E2; border-left: 4px solid #DC2626; }
+    .mistakes .section-title { color: #991B1B; }
+    
+    .exam-tips { background: #D1FAE5; border-left: 4px solid #10B981; }
+    .exam-tips .section-title { color: #065F46; }
+
+    .example-card { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 15px; margin-bottom: 12px; }
+    .example-problem { font-weight: bold; color: #1E293B; margin-bottom: 8px; }
+    .example-solution { color: #475569; font-size: 14px; white-space: pre-wrap; }
+    .content-text { font-size: 16px; color: #1E293B; white-space: pre-wrap; line-height: 1.8; }
+
+    .loading, .error, .empty { text-align: center; padding: 40px 20px; color: #64748B; font-size: 15px; background: white; border-radius: 12px; }
+    .error { color: #DC2626; background: #FEE2E2; border: 1px solid #FCA5A5; }
+
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px 0 15px; border-top: 1px solid #E2E8F0; z-index: 100; }
+    .nav-btn { text-align: center; color: #94A3B8; text-decoration: none; font-size: 10px; flex: 1; }
+    .nav-btn.active { color: #1E3A8A; font-weight: bold; }
+    .nav-icon { font-size: 22px; display: block; margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+  <div class="header"><a href="javascript:history.back()" class="back-btn">←</a><h1 id="page-title">Lesson</h1></div>
+  <div class="container" id="note-container"><div class="loading"> Loading lesson...</div></div>
+  
+  <div class="bottom-nav">
+    <a href="/dashboard.html" class="nav-btn"><span class="nav-icon">🏠</span>Home</a>
+    <a href="/learn.html" class="nav-btn active"><span class="nav-icon">📚</span>Learn</a>
+    <a href="/cbt.html" class="nav-btn"><span class="nav-icon">⚡</span>CBT</a>
+    <a href="/ai.html" class="nav-btn"><span class="nav-icon">🤖</span>AI</a>
+    <a href="/profile.html" class="nav-btn"><span class="nav-icon">👤</span>Profile</a>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://euffgftvbpntbbfibqtx.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1ZmZnZnR2YnBudGJiZmlicXR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMzk0NDQsImV4cCI6MjEwNDYxNTQ0NH0.LO7skAj0-OejT5nK1AV_0EMtv8k5VF4yQMRja26TiDQ';
+    
+    window.addEventListener('load', async () => {
+      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      const urlParams = new URLSearchParams(window.location.search);
+      const slug = urlParams.get('slug');
+      const container = document.getElementById('note-container');
+
+      if (!slug) { container.innerHTML = '<div class="error">️ No lesson specified.</div>'; return; }
+
+      try {
+        // 1. Fetch the main note with joined relations
+        const { data: note, error: noteError } = await supabase
+          .from('notes')
+          .select(`id, title, description, content, learning_objectives, key_points, examples, worked_examples, common_mistakes, exam_tips, summary, difficulty, estimated_minutes, status, classes(name, display_name), subjects(name, slug), topics(name, slug)`)
+          .eq('slug', slug)
+          .single();
+
+        if (noteError || !note || note.status !== 'published') {
+          container.innerHTML = '<div class="empty">📭 Lesson not found or not published yet.</div>';
+          return;
+        }
+
+        document.getElementById('page-title').innerText = note.title;
+        // 2. Fetch related exams and videos
+        const { data: examLinks } = await supabase.from('note_exams').select('exams(name)').eq('note_id', note.id);
+        const examNames = (examLinks || []).map(e => e.exams?.name).filter(Boolean);
+
+        const { data: videoLinks } = await supabase.from('note_videos').select('videos(title, url)').eq('note_id', note.id);
+        const videos = (videoLinks || []).map(v => v.videos).filter(Boolean);
+
+        // 3. Build the HTML
+        let html = '';
+
+        // Breadcrumbs
+        const cls = note.classes; const sub = note.subjects; const top = note.topics;
+        html += `<div class="breadcrumb"><a href="learn.html">Learn</a> / ${cls ? cls.display_name : ''} ${sub ? '/ ' + sub.name : ''} ${top ? '/ ' + top.name : ''}</div>`;
+
+        // Badges
+        html += `<div class="badges">`;
+        examNames.forEach(ex => html += `<span class="badge badge-exam">${ex}</span>`);
+        html += `<span class="badge badge-diff">${note.difficulty || 'easy'}</span>`;
+        html += `<span class="badge badge-time">⏱️ ${note.estimated_minutes || 10} mins</span>`;
+        html += `</div>`;
+
+        // Title & Desc
+        html += `<h1 class="lesson-title">${note.title}</h1>`;
+        if (note.description) html += `<p class="lesson-desc">${note.description}</p>`;
+
+        // Ask AI Button
+        const aiContext = encodeURIComponent(JSON.stringify({ noteTitle: note.title, subjectName: sub?.name || '', className: cls?.name || '', topicName: top?.name || '' }));
+        html += `<a href="/ai.html?context=${aiContext}" class="ask-ai-btn">🤖 Ask Professor LIGHT about this lesson</a>`;
+
+        // Learning Objectives
+        if (note.learning_objectives && note.learning_objectives.length > 0) {
+          html += `<div class="section-card"><div class="section-title">🎯 By the end of this lesson, you will be able to:</div><ul class="custom-list">`;
+          note.learning_objectives.forEach(obj => html += `<li>${obj}</li>`);
+          html += `</ul></div>`;
+        }
+
+        // Main Content
+        if (note.content) {
+          html += `<div class="section-card"><div class="content-text">${note.content}</div></div>`;
+        }
+
+        // Key Points
+        if (note.key_points && note.key_points.length > 0) {
+          html += `<div class="section-card key-points"><div class="section-title">💡 Key Points</div><ul class="custom-list">`;
+          note.key_points.forEach(pt => html += `<li>${pt}</li>`);
+          html += `</ul></div>`;
+        }
+
+        // Worked Examples
+        if (note.worked_examples && note.worked_examples.length > 0) {          html += `<div class="section-card"><div class="section-title">📝 Worked Examples</div>`;
+          note.worked_examples.forEach((ex, i) => {
+            html += `<div class="example-card"><div class="example-problem">Problem ${i+1}: ${ex.problem}</div><div class="example-solution">Solution: ${ex.solution}</div></div>`;
+          });
+          html += `</div>`;
+        }
+
+        // Common Mistakes
+        if (note.common_mistakes && note.common_mistakes.length > 0) {
+          html += `<div class="section-card mistakes"><div class="section-title">⚠️ Common Mistakes to Avoid</div><ul class="custom-list">`;
+          note.common_mistakes.forEach(m => html += `<li>${m}</li>`);
+          html += `</ul></div>`;
+        }
+
+        // Exam Tips
+        if (note.exam_tips && note.exam_tips.length > 0) {
+          html += `<div class="section-card exam-tips"><div class="section-title"> Exam Tips (WAEC/NECO/UTME)</div><ul class="custom-list">`;
+          note.exam_tips.forEach(tip => html += `<li>${tip}</li>`);
+          html += `</ul></div>`;
+        }
+
+        // Summary
+        if (note.summary) {
+          html += `<div class="section-card"><div class="section-title">📌 Summary</div><p style="font-size:15px; color:#475569;">${note.summary}</p></div>`;
+        }
+
+        // Videos
+        if (videos.length > 0) {
+          html += `<div class="section-card"><div class="section-title">🎥 Related Videos</div>`;
+          videos.forEach(v => html += `<a href="${v.url}" target="_blank" style="display:block; background:#F1F5F9; padding:12px; border-radius:8px; margin-bottom:8px; text-decoration:none; color:#1E3A8A; font-weight:bold;">▶️ ${v.title}</a>`);
+          html += `</div>`;
+        }
+
+        container.innerHTML = html;
+
+      } catch (error) {
+        container.innerHTML = `<div class="error">⚠️ Error loading lesson:<br>${error.message}</div>`;
+      }
+    });
+  </script>
+</body>
+</html>
