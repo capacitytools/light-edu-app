@@ -2,207 +2,142 @@
 <html>
 <head>
   <title>Login - Light Edu</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#1E3A8A">
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="logo.png">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body { 
-      background: linear-gradient(135deg, #1E3A8A 0%, #172554 100%); 
-      color: white; 
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; 
+      background: linear-gradient(135deg, #1E3A8A, #172554); 
+      font-family: Arial, sans-serif; 
       min-height: 100vh; 
       display: flex; 
-      flex-direction: column; 
       justify-content: center; 
       align-items: center; 
       padding: 20px;
     }
-    .logo { width: 70px; margin-bottom: 15px; }
-    h1 { font-size: 22px; margin-bottom: 5px; text-align: center; }
-    p { opacity: 0.85; margin-bottom: 25px; font-size: 13px; text-align: center; }
-    .form-box { 
+    .box { 
       background: white; 
-      color: #1E293B; 
+      padding: 30px 20px; 
+      border-radius: 15px; 
       width: 100%; 
-      max-width: 340px; 
-      padding: 25px 18px; 
-      border-radius: 18px; 
-      box-shadow: 0 8px 20px rgba(0,0,0,0.25); 
+      max-width: 320px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     }
-    .input-group { margin-bottom: 12px; }
-    label { display: block; font-size: 12px; font-weight: 600; color: #64748B; margin-bottom: 5px; }
+    h1 { text-align: center; color: #1E3A8A; margin-bottom: 5px; font-size: 24px; }
+    p { text-align: center; color: #64748B; margin-bottom: 25px; font-size: 13px; }
     input { 
       width: 100%; 
-      padding: 13px; 
+      padding: 12px; 
+      margin-bottom: 12px; 
       border: 2px solid #E2E8F0; 
-      border-radius: 10px; 
-      font-size: 15px; 
-      background: #F8FAFC; 
-      outline: none; 
-      -webkit-appearance: none;
+      border-radius: 8px; 
+      font-size: 15px;
     }
-    input:focus { border-color: #1E3A8A; background: white; }
-    
-    .btn { 
-      width: 100%;       padding: 14px; 
-      background: #DC2626; 
-      color: white; 
+    button { 
+      width: 100%; 
+      padding: 14px; 
       border: none; 
-      border-radius: 10px; 
+      border-radius: 8px; 
       font-size: 16px; 
       font-weight: bold; 
-      cursor: pointer; 
+      cursor: pointer;
       margin-top: 8px;
-      -webkit-appearance: none;
     }
-    .btn:active { transform: scale(0.97); background: #B91C1C; }
-    .btn:disabled { background: #94A3B8; }
-    
-    .toggle-btn { 
-      width: 100%; 
-      padding: 13px; 
-      background: transparent; 
-      color: #1E3A8A; 
-      border: 2px solid #1E3A8A; 
-      border-radius: 10px; 
-      font-size: 15px; 
-      font-weight: bold; 
-      cursor: pointer; 
-      margin-top: 12px;
-      -webkit-appearance: none;
-    }
-    .toggle-btn:active { background: #F1F5F9; }
-
-    .message-box { 
-      text-align: center; 
+    .login-btn { background: #DC2626; color: white; }
+    .signup-btn { background: white; color: #1E3A8A; border: 2px solid #1E3A8A; }
+    .msg { 
+      padding: 10px;       margin-bottom: 12px; 
+      border-radius: 6px; 
       font-size: 13px; 
-      margin-bottom: 12px; 
-      padding: 10px; 
-      border-radius: 8px; 
-      display: none; 
+      text-align: center;
+      display: none;
     }
-    .error-msg { color: #991B1B; background: #FEE2E2; }
-    .success-msg { color: #065F46; background: #D1FAE5; }
-    
-    .divider { text-align: center; margin: 15px 0 10px; color: #94A3B8; font-size: 12px; }
+    .error { background: #FEE2E2; color: #DC2626; }
+    .success { background: #D1FAE5; color: #059669; }
   </style>
 </head>
 <body>
 
-  <img src="logo.png" alt="Logo" class="logo">
-  <h1>Welcome to Light Edu</h1>
-  <p>Raising Minds, Building Excellence.</p>
+<div class="box">
+  <h1>Welcome</h1>
+  <p>Light Edu - Raising Minds</p>
+  
+  <div id="msg" class="msg"></div>
+  
+  <input type="email" id="email" placeholder="Email" autocomplete="email">
+  <input type="password" id="password" placeholder="Password (min 6)" autocomplete="current-password">
+  
+  <button class="login-btn" onclick="doLogin()">Login</button>
+  <button class="signup-btn" onclick="doSignup()">Create Account</button>
+</div>
 
-  <form class="form-box" id="auth-form" onsubmit="event.preventDefault(); handleAuth();">    <div class="message-box error-msg" id="error-msg"></div>
-    <div class="message-box success-msg" id="success-msg"></div>
+<script>
+const supabase = window.supabase.createClient(
+  'https://euffgftvbpntbbfibqtx.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1ZmZnZnR2YnBudGJiZmlicXR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMzk0NDQsImV4cCI6MjEwNDYxNTQ0NH0.LO7skAj0-OejT5nK1AV_0EMtv8k5VF4yQMRja26TiDQ'
+);
+
+function showMsg(text, isError) {
+  const msg = document.getElementById('msg');
+  msg.textContent = text;
+  msg.className = 'msg ' + (isError ? 'error' : 'success');
+  msg.style.display = 'block';
+}
+
+async function doLogin() {
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  
+  if (!email || !password) {
+    showMsg('⚠️ Please enter email and password', true);
+    return;
+  }
+  
+  showMsg('Logging in...', false);
+  
+  try {    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    window.location.href = 'dashboard.html';
+  } catch (err) {
+    showMsg('❌ ' + err.message, true);
+  }
+}
+
+async function doSignup() {
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  
+  if (!email || !password) {
+    showMsg('⚠️ Please enter email and password', true);
+    return;
+  }
+  
+  if (password.length < 6) {
+    showMsg('⚠️ Password must be at least 6 characters', true);
+    return;
+  }
+  
+  showMsg('Creating account...', false);
+  
+  try {
+    const { error } = await supabase.auth.signUp({ email, password });
+    if (error) throw error;
     
-    <div class="input-group">
-      <label for="email">Email Address</label>
-      <input type="email" id="email" placeholder="student@example.com" required autocomplete="email">
-    </div>
-    <div class="input-group">
-      <label for="password">Password</label>
-      <input type="password" id="password" placeholder="At least 6 characters" required minlength="6" autocomplete="current-password">
-    </div>
+    showMsg('✅ Account created! Logging in...', false);
     
-    <button type="submit" class="btn" id="action-btn">Login</button>
+    // Wait 1 second then login
+    setTimeout(async () => {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      window.location.href = 'dashboard.html';
+    }, 1000);
     
-    <div class="divider">— OR —</div>
-    
-    <button type="button" class="toggle-btn" id="toggle-btn">Create New Account</button>
-  </form>
+  } catch (err) {
+    showMsg('❌ ' + err.message, true);
+  }
+}
+</script>
 
-  <script>
-    const SUPABASE_URL = 'https://euffgftvbpntbbfibqtx.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1ZmZnZnR2YnBudGJiZmlicXR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMzk0NDQsImV4cCI6MjEwNDYxNTQ0NH0.LO7skAj0-OejT5nK1AV_0EMtv8k5VF4yQMRja26TiDQ';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    let isLogin = true;
-    const actionBtn = document.getElementById('action-btn');
-    const toggleBtn = document.getElementById('toggle-btn');
-    const errorBox = document.getElementById('error-msg');
-    const successBox = document.getElementById('success-msg');
-
-    // Toggle button event listener (bulletproof)
-    toggleBtn.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      isLogin = !isLogin;
-      
-      if (isLogin) {
-        actionBtn.textContent = 'Login';
-        toggleBtn.textContent = 'Create New Account';
-      } else {
-        actionBtn.textContent = 'Sign Up';
-        toggleBtn.textContent = 'Already have an account? Login';
-      }
-      
-      errorBox.style.display = 'none';
-      successBox.style.display = 'none';
-    });
-
-    async function handleAuth() {
-      const email = document.getElementById('email').value.trim();      const password = document.getElementById('password').value;
-
-      errorBox.style.display = 'none';
-      successBox.style.display = 'none';
-
-      // Ironclad validation
-      if (!email) {
-        errorBox.textContent = '⚠️ Please enter your email address.';
-        errorBox.style.display = 'block';
-        document.getElementById('email').focus();
-        return;
-      }
-      if (!password) {
-        errorBox.textContent = '⚠️ Please enter your password.';
-        errorBox.style.display = 'block';
-        document.getElementById('password').focus();
-        return;
-      }
-      if (password.length < 6) {
-        errorBox.textContent = '⚠️ Password must be at least 6 characters.';
-        errorBox.style.display = 'block';
-        return;
-      }
-
-      actionBtn.textContent = 'Processing...';
-      actionBtn.disabled = true;
-      toggleBtn.disabled = true;
-
-      try {
-        if (isLogin) {
-          const { error } = await supabase.auth.signInWithPassword({ email, password });
-          if (error) throw error;
-          window.location.href = 'dashboard.html';
-        } else {
-          const { error } = await supabase.auth.signUp({ email, password });
-          if (error) throw error;
-          
-          successBox.textContent = '✅ Account created! Logging you in...';
-          successBox.style.display = 'block';
-          
-          setTimeout(async () => {
-            await supabase.auth.signInWithPassword({ email, password });
-            window.location.href = 'dashboard.html';
-          }, 1500);
-        }
-      } catch (error) {
-        let msg = 'An error occurred.';
-        if (error.message.includes('Invalid login credentials')) msg = '❌ Wrong email or password.';
-        if (error.message.includes('User already registered')) msg = '❌ Email already exists. Please login.';
-        if (error.message.includes('password should be at least 6 characters')) msg = '❌ Password must be at least 6 characters.';        
-        errorBox.textContent = msg;
-        errorBox.style.display = 'block';
-        
-        actionBtn.textContent = isLogin ? 'Login' : 'Sign Up';
-        actionBtn.disabled = false;
-        toggleBtn.disabled = false;
-      }
-    }
-  </script>
 </body>
 </html>
