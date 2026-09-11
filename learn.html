@@ -6,7 +6,6 @@
   <meta name="theme-color" content="#1E3A8A">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="logo.png">
-  <!-- Supabase JavaScript Library -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -14,25 +13,16 @@
     .header { background: linear-gradient(135deg, #1E3A8A 0%, #172554 100%); color: white; padding: 25px 20px; text-align: center; border-bottom-left-radius: 25px; border-bottom-right-radius: 25px; }
     .header h1 { font-size: 24px; margin: 0; }
     .header p { font-size: 14px; opacity: 0.9; margin-top: 5px; }
-    
     .container { padding: 20px; }
     .section-title { font-size: 18px; font-weight: bold; color: #1E3A8A; margin-bottom: 15px; padding-left: 10px; border-left: 4px solid #DC2626; }
-    
     .class-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; }
-    .class-card { 
-      background: white; border-radius: 16px; padding: 20px 10px; text-align: center; 
-      text-decoration: none; color: white; font-weight: bold; font-size: 16px; 
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: transform 0.2s; 
-      display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; 
-    }
+    .class-card { background: white; border-radius: 16px; padding: 20px 10px; text-align: center; text-decoration: none; color: white; font-weight: bold; font-size: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: transform 0.2s; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; }
     .class-card:active { transform: scale(0.95); }
     .ss1 { background: linear-gradient(135deg, #10B981 0%, #059669 100%); }
     .ss2 { background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); }
     .ss3 { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); }
-    
     .loading, .error { text-align: center; padding: 40px 20px; color: #64748B; font-size: 15px; background: white; border-radius: 12px; }
-    .error { color: #DC2626; background: #FEE2E2; }
-    
+    .error { color: #DC2626; background: #FEE2E2; border: 1px solid #FCA5A5; }
     .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px 0 15px; border-top: 1px solid #E2E8F0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100; }
     .nav-btn { text-align: center; color: #94A3B8; text-decoration: none; font-size: 10px; flex: 1; }
     .nav-btn.active { color: #1E3A8A; font-weight: bold; }
@@ -47,7 +37,8 @@
 
   <div class="container">
     <div class="section-title">Available Classes</div>
-    <div id="classes-container" class="class-grid">      <div class="loading">⏳ Loading classes from database...</div>
+    <div id="classes-container" class="class-grid">
+      <div class="loading">⏳ Loading classes from database...</div>
     </div>
   </div>
 
@@ -56,37 +47,37 @@
     <a href="/learn.html" class="nav-btn active"><span class="nav-icon">📚</span>Learn</a>
     <a href="/cbt.html" class="nav-btn"><span class="nav-icon">⚡</span>CBT</a>
     <a href="/ai.html" class="nav-btn"><span class="nav-icon">🤖</span>AI</a>
-    <a href="/profile.html" class="nav-btn"><span class="nav-icon">👤</span>Profile</a>
-  </div>
+    <a href="/profile.html" class="nav-btn"><span class="nav-icon">👤</span>Profile</a>  </div>
 
   <script>
-    // YOUR SUPABASE DETAILS (Pre-filled for you!)
     const SUPABASE_URL = 'https://euffgftvbpntbbfibqtx.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1ZmZnZnR2YnBudGJiZmlicXR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMzk0NDQsImV4cCI6MjEwNDYxNTQ0NH0.LO7skAj0-OejT5nK1AV_0EMtv8k5VF4yQMRja26TiDQ';
 
-    // Initialize Supabase
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     async function loadClasses() {
       const container = document.getElementById('classes-container');
+      console.log("🔄 Starting to load classes...");
       
       try {
-        // Fetch classes from the database, ordered by sort_order
         const { data, error } = await supabase
           .from('classes')
           .select('id, name, display_name, sort_order')
           .order('sort_order');
 
-        if (error) throw error;
+        console.log("✅ Supabase Response:", { data, error });
 
-        container.innerHTML = ''; // Clear loading text
+        if (error) {
+          throw new Error(error.message || "Unknown database error");
+        }
+
+        container.innerHTML = ''; 
 
         if (!data || data.length === 0) {
           container.innerHTML = '<div class="error">No classes found in database yet. Please ask admin to add them.</div>';
           return;
         }
 
-        // Create the HTML for each class
         data.forEach(cls => {
           let colorClass = 'ss1';
           if (cls.name === 'SS2') colorClass = 'ss2';
@@ -94,24 +85,21 @@
 
           const card = document.createElement('a');
           card.className = `class-card ${colorClass}`;
-          // Link to subjects page, passing the class name in the URL
           card.href = `subjects.html?class=${encodeURIComponent(cls.name)}`; 
-                    card.innerHTML = `
+          
+          card.innerHTML = `
             <span style="font-size: 32px;">🎓</span>
             <span>${cls.name}</span>
             <span style="font-size: 11px; font-weight: normal; opacity: 0.9;">${cls.display_name}</span>
           `;
-          
           container.appendChild(card);
         });
 
       } catch (error) {
-        container.innerHTML = `<div class="error">⚠️ Error loading classes:<br>${error.message}</div>`;
-        console.error('Supabase Error:', error);
+        console.error("❌ CRITICAL ERROR:", error);        container.innerHTML = `<div class="error">⚠️ Error loading classes:<br><strong>${error.message}</strong><br><br><small>Check browser console (F12) for details.</small></div>`;
       }
     }
 
-    // Run the function when the page loads
     loadClasses();
   </script>
 </body>
