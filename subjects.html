@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Subjects - Light Edu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1E3A8A">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="logo.png">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background-color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; color: #1E293B; padding-bottom: 80px; }
+    .header { background: linear-gradient(135deg, #1E3A8A 0%, #172554 100%); color: white; padding: 20px; display: flex; align-items: center; gap: 15px; }
+    .back-btn { background: rgba(255,255,255,0.2); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; font-size: 18px; cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; }
+    .header h1 { font-size: 20px; margin: 0; }
+    
+    .container { padding: 20px; }
+    .subject-card { 
+      background: white; border-radius: 16px; padding: 20px; margin-bottom: 15px; 
+      text-decoration: none; color: #1E293B; box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
+      display: flex; align-items: center; gap: 15px; transition: transform 0.2s;
+    }
+    .subject-card:active { transform: scale(0.98); background: #F8FAFC; }
+    .subject-icon { font-size: 28px; width: 50px; height: 50px; background: #F1F5F9; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+    .subject-info { flex: 1; }
+    .subject-name { font-size: 16px; font-weight: bold; color: #1E3A8A; }
+    .subject-desc { font-size: 13px; color: #64748B; margin-top: 4px; }
+    
+    .loading, .error { text-align: center; padding: 40px 20px; color: #64748B; font-size: 15px; }
+    .error { color: #DC2626; background: #FEE2E2; border-radius: 12px; }
+
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px 0 15px; border-top: 1px solid #E2E8F0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100; }
+    .nav-btn { text-align: center; color: #94A3B8; text-decoration: none; font-size: 10px; flex: 1; }
+    .nav-btn.active { color: #1E3A8A; font-weight: bold; }
+    .nav-icon { font-size: 22px; display: block; margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <a href="learn.html" class="back-btn">←</a>
+    <h1 id="page-title">Subjects</h0>
+  </div>
+
+  <div class="container" id="subjects-container">
+    <div class="loading">⏳ Loading subjects...</div>
+  </div>
+
+  <div class="bottom-nav">
+    <a href="/dashboard.html" class="nav-btn"><span class="nav-icon">🏠</span>Home</a>
+    <a href="/learn.html" class="nav-btn active"><span class="nav-icon">📚</span>Learn</a>    <a href="/cbt.html" class="nav-btn"><span class="nav-icon">⚡</span>CBT</a>
+    <a href="/ai.html" class="nav-btn"><span class="nav-icon">🤖</span>AI</a>
+    <a href="/profile.html" class="nav-btn"><span class="nav-icon">👤</span>Profile</a>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://euffgftvbpntbbfibqtx.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1ZmZnZnR2YnBudGJiZmlicXR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMzk0NDQsImV4cCI6MjEwNDYxNTQ0NH0.LO7skAj0-OejT5nK1AV_0EMtv8k5VF4yQMRja26TiDQ';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Get class name from URL (e.g., ?class=SS2)
+    const urlParams = new URLSearchParams(window.location.search);
+    const className = urlParams.get('class') || 'SS1';
+    document.getElementById('page-title').innerText = `${className} Subjects`;
+
+    async function loadSubjects() {
+      const container = document.getElementById('subjects-container');
+      
+      try {
+        // 1. Get the class ID
+        const { data: classData, error: classError } = await supabase
+          .from('classes')
+          .select('id')
+          .eq('name', className)
+          .single();
+
+        if (classError || !classData) throw new Error("Class not found");
+
+        // 2. Find all unique subject_ids that have published notes for this class
+        const { data: notesData, error: notesError } = await supabase
+          .from('notes')
+          .select('subject_id')
+          .eq('class_id', classData.id)
+          .eq('status', 'published');
+
+        if (notesError) throw notesError;
+
+        const subjectIds = [...new Set((notesData || []).map(n => n.subject_id))];
+
+        if (subjectIds.length === 0) {
+          container.innerHTML = `<div class="loading">No published notes for ${className} yet. Check back soon!</div>`;
+          return;
+        }
+
+        // 3. Fetch the actual subject details
+        const { data: subjects, error: subjectsError } = await supabase
+          .from('subjects')
+          .select('id, name, slug, description, icon')
+          .in('id', subjectIds)
+          .order('sort_order');
+        if (subjectsError) throw subjectsError;
+
+        container.innerHTML = ''; // Clear loading
+
+        if (!subjects || subjects.length === 0) {
+          container.innerHTML = `<div class="loading">No subjects found for ${className}.</div>`;
+          return;
+        }
+
+        // Default icons map
+        const defaultIcons = { 'Mathematics': '📐', 'Physics': '⚛️', 'Chemistry': '🧪', 'Biology': '🧬', 'English': '📖' };
+
+        subjects.forEach(sub => {
+          const icon = sub.icon || defaultIcons[sub.name] || '📚';
+          const card = document.createElement('a');
+          card.className = 'subject-card';
+          // For now, this is a placeholder link. We will build note.html next!
+          card.href = `#`; 
+          card.onclick = (e) => {
+            e.preventDefault();
+            alert(`Opening ${sub.name} for ${className}...\n(We will build the topics page next!)`);
+          };
+          
+          card.innerHTML = `
+            <div class="subject-icon">${icon}</div>
+            <div class="subject-info">
+              <div class="subject-name">${sub.name}</div>
+              ${sub.description ? `<div class="subject-desc">${sub.description}</div>` : ''}
+            </div>
+            <span style="color: #94A3B8; font-size: 20px;">›</span>
+          `;
+          container.appendChild(card);
+        });
+
+      } catch (error) {
+        container.innerHTML = `<div class="error">⚠️ Error:<br>${error.message}</div>`;
+        console.error('Supabase Error:', error);
+      }
+    }
+
+    loadSubjects();
+  </script>
+</body>
+</html>
