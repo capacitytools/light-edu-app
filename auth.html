@@ -3,88 +3,73 @@
 <head>
   <title>Login - Light Edu</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- THIS IS THE CORRECT LINK FOR MOBILE BROWSERS -->
+  <meta name="theme-color" content="#1E3A8A">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <style>
-    body { font-family: sans-serif; padding: 20px; background: #f0f0f0; }
-    .box { background: white; padding: 20px; border-radius: 10px; max-width: 300px; margin: 0 auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    h2 { text-align: center; color: #1E3A8A; }
-    input { width: 100%; padding: 15px; margin: 10px 0; box-sizing: border-box; font-size: 16px; border: 1px solid #ccc; border-radius: 8px; }
-    button { width: 100%; padding: 15px; font-size: 18px; margin: 10px 0; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding: 20px; background: linear-gradient(135deg, #1E3A8A, #172554); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .box { background: white; padding: 25px 20px; border-radius: 15px; width: 100%; max-width: 320px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+    h2 { text-align: center; color: #1E3A8A; margin-bottom: 5px; }
+    p { text-align: center; color: #64748B; margin-bottom: 20px; font-size: 14px; }
+    input { width: 100%; padding: 14px; margin-bottom: 12px; box-sizing: border-box; font-size: 16px; border: 2px solid #E2E8F0; border-radius: 10px; outline: none; }
+    input:focus { border-color: #1E3A8A; }
+    button { width: 100%; padding: 15px; font-size: 16px; margin-top: 8px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; }
     .login-btn { background: #DC2626; color: white; }
     .signup-btn { background: white; color: #1E3A8A; border: 2px solid #1E3A8A; }
-    #status { text-align: center; margin-top: 15px; font-weight: bold; }
+    #status { text-align: center; margin-top: 15px; font-size: 14px; font-weight: bold; color: #059669; }
+    .error { color: #DC2626; }
   </style>
 </head>
 <body>
-
 <div class="box">
-  <h2>Light Edu Login</h2>
-  <input type="email" id="email" placeholder="Email">
+  <h2>Welcome Back</h2>
+  <p>Light Edu - Raising Minds</p>
+  <input type="email" id="email" placeholder="Email Address">
   <input type="password" id="password" placeholder="Password">
-  
-  <button class="login-btn" onclick="testLogin()">LOGIN</button>
-  <button class="signup-btn" onclick="testSignup()">CREATE ACCOUNT</button>
-  
+  <button class="login-btn" onclick="doLogin()">Login</button>
+  <button class="signup-btn" onclick="doSignup()">Create Account</button>
   <p id="status"></p>
 </div>
 
 <script>
-  // Check if Supabase loaded
-  if (typeof window.supabase === 'undefined') {
-    document.getElementById('status').innerText = "❌ Supabase failed to load. Check internet.";
-  } else {
-    document.getElementById('status').innerText = "✅ System Ready!";
+  const supabase = window.supabase.createClient(
+    'https://euffgftvbpntbbfibqtx.supabase.co', 
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1ZmZnZnR2YnBudGJiZmlicXR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMzk0NDQsImV4cCI6MjEwNDYxNTQ0NH0.LO7skAj0-OejT5nK1AV_0EMtv8k5VF4yQMRja26TiDQ'
+  );
+
+  function showStatus(msg, isError) {
+    const el = document.getElementById('status');
+    el.textContent = msg;
+    el.className = isError ? 'error' : '';
+  }
+
+  async function doLogin() {
+    const email = document.getElementById('email').value.trim();
+    const pass = document.getElementById('password').value;
+    if(!email || !pass) { showStatus("⚠️ Please fill in all fields", true); return; }
     
-    const supabase = window.supabase.createClient(
-      'https://euffgftvbpntbbfibqtx.supabase.co', 
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1ZmZnZnR2YnBudGJiZmlicXR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMzk0NDQsImV4cCI6MjEwNDYxNTQ0NH0.LO7skAj0-OejT5nK1AV_0EMtv8k5VF4yQMRja26TiDQ'
-    );
+    showStatus("Logging in...");
+    const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
+    if(error) { showStatus("❌ " + error.message, true); return; }
+    
+    window.location.href = 'dashboard.html';
+  }
 
-    function testLogin() {
-      const email = document.getElementById('email').value;
-      const pass = document.getElementById('password').value;
-      if(!email || !pass) { alert("Please fill in email and password"); return; }
-      
-      document.getElementById('status').innerText = "Logging in...";
-      
-      supabase.auth.signInWithPassword({email: email, password: pass}).then(res => {
-        if(res.error) { 
-          alert("❌ Error: " + res.error.message); 
-          document.getElementById('status').innerText = "";
-        }
-        else { 
-          alert("✅ SUCCESS! Going to dashboard..."); 
-          window.location.href = 'dashboard.html'; 
-        }
-      });
-    }
-
-    function testSignup() {
-      const email = document.getElementById('email').value;
-      const pass = document.getElementById('password').value;
-      if(!email || !pass) { alert("Please fill in email and password"); return; }
-      if(pass.length < 6) { alert("Password must be at least 6 characters"); return; }
-      
-      document.getElementById('status').innerText = "Creating account...";
-      
-      supabase.auth.signUp({email: email, password: pass}).then(res => {
-        if(res.error) { 
-          alert("❌ Error: " + res.error.message); 
-          document.getElementById('status').innerText = "";
-        }
-        else { 
-          alert("🎉 Account created! Logging you in...");
-          // Auto login after signup
-          supabase.auth.signInWithPassword({email: email, password: pass}).then(res2 => {
-             if(res2.error) alert("Created, but auto-login failed. Please login manually.");
-             else window.location.href = 'dashboard.html';
-          });
-        }
-      });
-    }
+  async function doSignup() {
+    const email = document.getElementById('email').value.trim();
+    const pass = document.getElementById('password').value;
+    if(!email || !pass) { showStatus("⚠️ Please fill in all fields", true); return; }
+    if(pass.length < 6) { showStatus("⚠️ Password must be 6+ characters", true); return; }
+    
+    showStatus("Creating account...");
+    const { error } = await supabase.auth.signUp({ email, password: pass });
+    if(error) { showStatus("❌ " + error.message, true); return; }
+    
+    showStatus("✅ Success! Logging you in...");
+    const { error: loginError } = await supabase.auth.signInWithPassword({ email, password: pass });
+    if(loginError) { showStatus("❌ Auto-login failed. Please login manually.", true); return; }
+    
+    window.location.href = 'dashboard.html';
   }
 </script>
-
 </body>
 </html>
