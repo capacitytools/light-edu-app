@@ -1,71 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Test Login</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    body { font-family: sans-serif; padding: 20px; background: #f0f0f0; }
-    .box { background: white; padding: 20px; border-radius: 10px; max-width: 300px; margin: 0 auto; }
-    input { width: 100%; padding: 15px; margin: 10px 0; box-sizing: border-box; font-size: 16px; border: 1px solid #ccc; }
-    button { width: 100%; padding: 20px; font-size: 20px; margin: 10px 0; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
-    .login-btn { background: red; color: white; }
-    .signup-btn { background: white; color: blue; border: 2px solid blue; }
-  </style>
+  <title>JS Test</title>
 </head>
 <body>
-
-<div class="box">
-  <h2>Diagnostic Test</h2>
-  <input type="email" id="email" placeholder="Email">
-  <input type="password" id="password" placeholder="Password">
+  <h1>JavaScript Test</h1>
+  <button onclick="alert('JavaScript is WORKING!')">TAP ME</button>
+  <p id="status">Loading...</p>
   
-  <button class="login-btn" onclick="testLogin()">LOGIN (TAP ME)</button>
-  <button class="signup-btn" onclick="testSignup()">SIGN UP (TAP ME)</button>
-  
-  <p id="status" style="text-align:center; color:green;"></p>
-</div>
-
-<script>
-  const supabase = window.supabase.createClient(
-    'https://euffgftvbpntbbfibqtx.supabase.co', 
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1ZmZnZnR2YnBudGJiZmlicXR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMzk0NDQsImV4cCI6MjEwNDYxNTQ0NH0.LO7skAj0-OejT5nK1AV_0EMtv8k5VF4yQMRja26TiDQ'
-  );
-
-  function testLogin() {
-    // If this alert pops up, the button click WORKS!
-    alert("✅ LOGIN BUTTON TAPPED!"); 
+  <script>
+    document.getElementById('status').innerText = '✅ JavaScript loaded successfully!';
     
-    const email = document.getElementById('email').value;
-    const pass = document.getElementById('password').value;
-    
-    if(!email || !pass) { alert("Please fill in email and password"); return; }
-    
-    document.getElementById('status').innerText = "Logging in...";
-    
-    supabase.auth.signInWithPassword({email: email, password: pass}).then(res => {
-      if(res.error) alert("❌ Error: " + res.error.message);
-      else { alert(" SUCCESS! Going to dashboard..."); window.location.href = 'dashboard.html'; }
-    });
-  }
-
-  function testSignup() {
-    // If this alert pops up, the button click WORKS!
-    alert("✅ SIGNUP BUTTON TAPPED!"); 
-    
-    const email = document.getElementById('email').value;
-    const pass = document.getElementById('password').value;
-    
-    if(!email || !pass) { alert("Please fill in email and password"); return; }
-    
-    document.getElementById('status').innerText = "Signing up...";
-    
-    supabase.auth.signUp({email: email, password: pass}).then(res => {
-      if(res.error) alert("❌ Error: " + res.error.message);
-      else alert("🎉 Account created! Check your email or try logging in.");
-    });
-  }
-</script>
-
+    // Test if Supabase library loads
+    if (typeof window.supabase !== 'undefined') {
+      document.getElementById('status').innerText += '\n✅ Supabase library loaded!';
+    } else {
+      document.getElementById('status').innerText += '\n❌ Supabase library NOT loaded!';
+    }
+  </script>
 </body>
 </html>
