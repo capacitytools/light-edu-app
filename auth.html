@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login - Light Edu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1E3A8A">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="logo.png">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: linear-gradient(135deg, #1E3A8A 0%, #172554 100%); color: white; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
+    .logo { width: 80px; margin-bottom: 20px; }
+    h1 { font-size: 24px; margin-bottom: 5px; text-align: center; }
+    p { opacity: 0.8; margin-bottom: 30px; font-size: 14px; text-align: center; }
+    .form-box { background: white; color: #1E293B; width: 100%; max-width: 360px; padding: 30px 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+    .input-group { margin-bottom: 15px; }
+    label { display: block; font-size: 13px; font-weight: bold; color: #64748B; margin-bottom: 6px; }
+    input { width: 100%; padding: 14px; border: 2px solid #E2E8F0; border-radius: 10px; font-size: 16px; background: #F8FAFC; outline: none; transition: 0.2s; }
+    input:focus { border-color: #1E3A8A; background: white; }
+    
+    .btn { width: 100%; padding: 16px; background: #DC2626; color: white; border: none; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s; }
+    .btn:active { transform: scale(0.98); background: #B91C1C; }
+    .btn:disabled { background: #94A3B8; cursor: not-allowed; }
+    
+    .toggle-btn { width: 100%; padding: 14px; background: transparent; color: #1E3A8A; border: 2px solid #1E3A8A; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 15px; }
+    .toggle-btn:active { background: #F1F5F9; }
+
+    .message-box { text-align: center; font-size: 14px; margin-bottom: 15px; padding: 10px; border-radius: 8px; display: none; }
+    .error-msg { color: #991B1B; background: #FEE2E2; border: 1px solid #FCA5A5; }
+    .success-msg { color: #065F46; background: #D1FAE5; border: 1px solid #A7F3D0; }
+  </style>
+</head>
+<body>
+
+  <img src="logo.png" alt="Logo" class="logo">
+  <h1>Welcome to Light Edu</h1>
+  <p>Raising Minds, Building Excellence.</p>
+
+  <form class="form-box" onsubmit="event.preventDefault(); handleAuth();">
+    <div class="message-box error-msg" id="error-msg"></div>
+    <div class="message-box success-msg" id="success-msg"></div>
+    
+    <div class="input-group">
+      <label>Email Address</label>
+      <input type="email" id="email" placeholder="student@example.com" required>
+    </div>
+    <div class="input-group">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="At least 6 characters" required minlength="6">    </div>
+    
+    <button type="submit" class="btn" id="action-btn">Login</button>
+    
+    <button type="button" class="toggle-btn" id="toggle-btn" onclick="toggleMode()">
+      Don't have an account? Sign Up
+    </button>
+  </form>
+
+  <script>
+    const SUPABASE_URL = 'https://euffgftvbpntbbfibqtx.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1ZmZnZnR2YnBudGJiZmlicXR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMzk0NDQsImV4cCI6MjEwNDYxNTQ0NH0.LO7skAj0-OejT5nK1AV_0EMtv8k5VF4yQMRja26TiDQ';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let isLogin = true;
+
+    function toggleMode() {
+      isLogin = !isLogin;
+      const btn = document.getElementById('action-btn');
+      const toggleBtn = document.getElementById('toggle-btn');
+      
+      if (isLogin) {
+        btn.innerText = 'Login';
+        toggleBtn.innerText = "Don't have an account? Sign Up";
+      } else {
+        btn.innerText = 'Create Account';
+        toggleBtn.innerText = "Already have an account? Login";
+      }
+      
+      document.getElementById('error-msg').style.display = 'none';
+      document.getElementById('success-msg').style.display = 'none';
+    }
+
+    async function handleAuth() {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const errorBox = document.getElementById('error-msg');
+      const successBox = document.getElementById('success-msg');
+      const btn = document.getElementById('action-btn');
+      const toggleBtn = document.getElementById('toggle-btn');
+
+      errorBox.style.display = 'none';
+      successBox.style.display = 'none';
+
+      if (!email || !password) {
+        errorBox.innerText = "⚠️ Please fill in both email and password.";
+        errorBox.style.display = 'block';
+        return;
+      }
+      btn.innerText = "Processing...";
+      btn.disabled = true;
+      toggleBtn.disabled = true;
+
+      try {
+        if (isLogin) {
+          const { error } = await supabase.auth.signInWithPassword({ email, password });
+          if (error) throw error;
+          window.location.href = 'dashboard.html';
+        } else {
+          const { error } = await supabase.auth.signUp({ email, password });
+          if (error) throw error;
+          
+          successBox.innerText = "✅ Account created! Logging you in...";
+          successBox.style.display = 'block';
+          
+          setTimeout(async () => {
+            await supabase.auth.signInWithPassword({ email, password });
+            window.location.href = 'dashboard.html';
+          }, 1500);
+        }
+      } catch (error) {
+        let msg = "An error occurred.";
+        if (error.message.includes('Invalid login credentials')) msg = "❌ Wrong email or password.";
+        if (error.message.includes('User already registered')) msg = "❌ Email already exists. Please login.";
+        if (error.message.includes('password should be at least 6 characters')) msg = "❌ Password must be at least 6 characters.";
+        
+        errorBox.innerText = msg;
+        errorBox.style.display = 'block';
+        
+        btn.innerText = isLogin ? 'Login' : 'Create Account';
+        btn.disabled = false;
+        toggleBtn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>
