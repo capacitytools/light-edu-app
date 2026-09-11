@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Lessons - Light Edu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1E3A8A">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="logo.png">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background-color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; color: #1E293B; padding-bottom: 80px; }
+    .header { background: linear-gradient(135deg, #1E3A8A 0%, #172554 100%); color: white; padding: 20px; display: flex; align-items: center; gap: 15px; }
+    .back-btn { background: rgba(255,255,255,0.2); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; font-size: 18px; cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; }
+    .header h1 { font-size: 18px; margin: 0; }
+    .container { padding: 20px; }
+    
+    .lesson-card { 
+      background: white; border-radius: 16px; padding: 20px; margin-bottom: 15px; 
+      text-decoration: none; color: #1E293B; box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
+      display: flex; flex-direction: column; gap: 8px; transition: transform 0.2s; border-left: 4px solid #10B981;
+    }
+    .lesson-card:active { transform: scale(0.98); background: #F8FAFC; }
+    .lesson-title { font-size: 16px; font-weight: bold; color: #1E3A8A; }
+    .lesson-desc { font-size: 13px; color: #64748B; line-height: 1.4; }
+    .lesson-meta { display: flex; gap: 10px; margin-top: 5px; }
+    .badge { font-size: 11px; padding: 4px 8px; border-radius: 20px; font-weight: bold; }
+    .badge-diff { background: #FEF3C7; color: #D97706; }
+    .badge-time { background: #E0F2FE; color: #0284C7; }
+    
+    .loading, .error, .empty { text-align: center; padding: 40px 20px; color: #64748B; font-size: 15px; background: white; border-radius: 12px; }
+    .error { color: #DC2626; background: #FEE2E2; border: 1px solid #FCA5A5; }
+
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px 0 15px; border-top: 1px solid #E2E8F0; z-index: 100; }
+    .nav-btn { text-align: center; color: #94A3B8; text-decoration: none; font-size: 10px; flex: 1; }
+    .nav-btn.active { color: #1E3A8A; font-weight: bold; }
+    .nav-icon { font-size: 22px; display: block; margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <a href="javascript:history.back()" class="back-btn">←</a>
+    <h1 id="page-title">Lessons</h1>
+  </div>
+
+  <div class="container" id="lessons-container">
+    <div class="loading">⏳ Loading lessons...</div>
+  </div>
+
+  <div class="bottom-nav">    <a href="/dashboard.html" class="nav-btn"><span class="nav-icon">🏠</span>Home</a>
+    <a href="/learn.html" class="nav-btn active"><span class="nav-icon">📚</span>Learn</a>
+    <a href="/cbt.html" class="nav-btn"><span class="nav-icon">⚡</span>CBT</a>
+    <a href="/ai.html" class="nav-btn"><span class="nav-icon"></span>AI</a>
+    <a href="/profile.html" class="nav-btn"><span class="nav-icon">👤</span>Profile</a>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://euffgftvbpntbbfibqtx.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1ZmZnZnR2YnBudGJiZmlicXR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMzk0NDQsImV4cCI6MjEwNDYxNTQ0NH0.LO7skAj0-OejT5nK1AV_0EMtv8k5VF4yQMRja26TiDQ';
+    
+    window.addEventListener('load', () => {
+      if (!window.supabase) {
+        document.getElementById('lessons-container').innerHTML = '<div class="error">⚠️ Supabase library failed to load.</div>';
+        return;
+      }
+
+      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      const urlParams = new URLSearchParams(window.location.search);
+      const className = urlParams.get('class') || 'SS1';
+      const subjectName = urlParams.get('subject') || 'Mathematics';
+      const topicName = urlParams.get('topic') || 'Algebra';
+      
+      document.getElementById('page-title').innerText = `${topicName}`;
+      const container = document.getElementById('lessons-container');
+
+      const timeout = setTimeout(() => {
+        if (container.innerHTML.includes('Loading')) {
+          container.innerHTML = '<div class="error">⚠️ Connection timed out.</div>';
+        }
+      }, 10000);
+
+      async function loadLessons() {
+        try {
+          // 1. Get Class ID
+          const { data: classData, error: classError } = await supabase.from('classes').select('id').eq('name', className).single();
+          if (classError) throw classError;
+
+          // 2. Get Subject ID
+          const { data: subjectData, error: subjectError } = await supabase.from('subjects').select('id').eq('name', subjectName).single();
+          if (subjectError) throw subjectError;
+
+          // 3. Get Topic ID
+          const { data: topicData, error: topicError } = await supabase.from('topics').select('id').eq('name', topicName).single();
+          if (topicError) throw topicError;
+
+          // 4. Fetch Published Lessons (Notes) for this specific Topic
+          const { data: lessons, error: lessonsError } = await supabase
+            .from('notes')
+            .select('id, title, description, difficulty, estimated_minutes, slug')            .eq('class_id', classData.id)
+            .eq('subject_id', subjectData.id)
+            .eq('topic_id', topicData.id)
+            .eq('status', 'published')
+            .order('created_at', { ascending: true });
+
+          if (lessonsError) throw lessonsError;
+          clearTimeout(timeout);
+
+          if (!lessons || lessons.length === 0) {
+            container.innerHTML = `<div class="empty"> No lessons published for <strong>${topicName}</strong> yet.<br><br>Check back soon!</div>`;
+            return;
+          }
+
+          container.innerHTML = ''; 
+
+          lessons.forEach((lesson, index) => {
+            const card = document.createElement('a');
+            card.className = 'lesson-card';
+            // Link to the actual note page (which we will build next!)
+            card.href = `note.html?slug=${encodeURIComponent(lesson.slug)}`;
+            
+            let diffColor = '#FEF3C7';
+            if(lesson.difficulty === 'medium') diffColor = '#E0F2FE';
+            if(lesson.difficulty === 'hard') diffColor = '#FEE2E2';
+
+            card.innerHTML = `
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="lesson-title">${index + 1}. ${lesson.title}</div>
+              </div>
+              ${lesson.description ? `<div class="lesson-desc">${lesson.description}</div>` : ''}
+              <div class="lesson-meta">
+                <span class="badge badge-diff" style="background:${diffColor}">${lesson.difficulty || 'easy'}</span>
+                <span class="badge badge-time">️ ${lesson.estimated_minutes || 10} mins</span>
+              </div>
+            `;
+            container.appendChild(card);
+          });
+
+        } catch (error) {
+          clearTimeout(timeout);
+          container.innerHTML = `<div class="error">⚠️ Error:<br>${error.message}</div>`;
+        }
+      }
+      loadLessons();
+    });
+  </script>
+</body>
+</html>
