@@ -1,142 +1,70 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Login - Light Edu</title>
+  <title>Test Login</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#1E3A8A">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { 
-      background: linear-gradient(135deg, #1E3A8A, #172554); 
-      font-family: Arial, sans-serif; 
-      min-height: 100vh; 
-      display: flex; 
-      justify-content: center; 
-      align-items: center; 
-      padding: 20px;
-    }
-    .box { 
-      background: white; 
-      padding: 30px 20px; 
-      border-radius: 15px; 
-      width: 100%; 
-      max-width: 320px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    }
-    h1 { text-align: center; color: #1E3A8A; margin-bottom: 5px; font-size: 24px; }
-    p { text-align: center; color: #64748B; margin-bottom: 25px; font-size: 13px; }
-    input { 
-      width: 100%; 
-      padding: 12px; 
-      margin-bottom: 12px; 
-      border: 2px solid #E2E8F0; 
-      border-radius: 8px; 
-      font-size: 15px;
-    }
-    button { 
-      width: 100%; 
-      padding: 14px; 
-      border: none; 
-      border-radius: 8px; 
-      font-size: 16px; 
-      font-weight: bold; 
-      cursor: pointer;
-      margin-top: 8px;
-    }
-    .login-btn { background: #DC2626; color: white; }
-    .signup-btn { background: white; color: #1E3A8A; border: 2px solid #1E3A8A; }
-    .msg { 
-      padding: 10px;       margin-bottom: 12px; 
-      border-radius: 6px; 
-      font-size: 13px; 
-      text-align: center;
-      display: none;
-    }
-    .error { background: #FEE2E2; color: #DC2626; }
-    .success { background: #D1FAE5; color: #059669; }
+    body { font-family: sans-serif; padding: 20px; background: #f0f0f0; }
+    .box { background: white; padding: 20px; border-radius: 10px; max-width: 300px; margin: 0 auto; }
+    input { width: 100%; padding: 15px; margin: 10px 0; box-sizing: border-box; font-size: 16px; border: 1px solid #ccc; }
+    button { width: 100%; padding: 20px; font-size: 20px; margin: 10px 0; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+    .login-btn { background: red; color: white; }
+    .signup-btn { background: white; color: blue; border: 2px solid blue; }
   </style>
 </head>
 <body>
 
 <div class="box">
-  <h1>Welcome</h1>
-  <p>Light Edu - Raising Minds</p>
+  <h2>Diagnostic Test</h2>
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Password">
   
-  <div id="msg" class="msg"></div>
+  <button class="login-btn" onclick="testLogin()">LOGIN (TAP ME)</button>
+  <button class="signup-btn" onclick="testSignup()">SIGN UP (TAP ME)</button>
   
-  <input type="email" id="email" placeholder="Email" autocomplete="email">
-  <input type="password" id="password" placeholder="Password (min 6)" autocomplete="current-password">
-  
-  <button class="login-btn" onclick="doLogin()">Login</button>
-  <button class="signup-btn" onclick="doSignup()">Create Account</button>
+  <p id="status" style="text-align:center; color:green;"></p>
 </div>
 
 <script>
-const supabase = window.supabase.createClient(
-  'https://euffgftvbpntbbfibqtx.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1ZmZnZnR2YnBudGJiZmlicXR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMzk0NDQsImV4cCI6MjEwNDYxNTQ0NH0.LO7skAj0-OejT5nK1AV_0EMtv8k5VF4yQMRja26TiDQ'
-);
+  const supabase = window.supabase.createClient(
+    'https://euffgftvbpntbbfibqtx.supabase.co', 
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1ZmZnZnR2YnBudGJiZmlicXR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMzk0NDQsImV4cCI6MjEwNDYxNTQ0NH0.LO7skAj0-OejT5nK1AV_0EMtv8k5VF4yQMRja26TiDQ'
+  );
 
-function showMsg(text, isError) {
-  const msg = document.getElementById('msg');
-  msg.textContent = text;
-  msg.className = 'msg ' + (isError ? 'error' : 'success');
-  msg.style.display = 'block';
-}
+  function testLogin() {
+    // If this alert pops up, the button click WORKS!
+    alert("✅ LOGIN BUTTON TAPPED!"); 
+    
+    const email = document.getElementById('email').value;
+    const pass = document.getElementById('password').value;
+    
+    if(!email || !pass) { alert("Please fill in email and password"); return; }
+    
+    document.getElementById('status').innerText = "Logging in...";
+    
+    supabase.auth.signInWithPassword({email: email, password: pass}).then(res => {
+      if(res.error) alert("❌ Error: " + res.error.message);
+      else { alert(" SUCCESS! Going to dashboard..."); window.location.href = 'dashboard.html'; }
+    });
+  }
 
-async function doLogin() {
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
-  
-  if (!email || !password) {
-    showMsg('⚠️ Please enter email and password', true);
-    return;
-  }
-  
-  showMsg('Logging in...', false);
-  
-  try {    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
-    window.location.href = 'dashboard.html';
-  } catch (err) {
-    showMsg('❌ ' + err.message, true);
-  }
-}
-
-async function doSignup() {
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
-  
-  if (!email || !password) {
-    showMsg('⚠️ Please enter email and password', true);
-    return;
-  }
-  
-  if (password.length < 6) {
-    showMsg('⚠️ Password must be at least 6 characters', true);
-    return;
-  }
-  
-  showMsg('Creating account...', false);
-  
-  try {
-    const { error } = await supabase.auth.signUp({ email, password });
-    if (error) throw error;
+  function testSignup() {
+    // If this alert pops up, the button click WORKS!
+    alert("✅ SIGNUP BUTTON TAPPED!"); 
     
-    showMsg('✅ Account created! Logging in...', false);
+    const email = document.getElementById('email').value;
+    const pass = document.getElementById('password').value;
     
-    // Wait 1 second then login
-    setTimeout(async () => {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
-      window.location.href = 'dashboard.html';
-    }, 1000);
+    if(!email || !pass) { alert("Please fill in email and password"); return; }
     
-  } catch (err) {
-    showMsg('❌ ' + err.message, true);
+    document.getElementById('status').innerText = "Signing up...";
+    
+    supabase.auth.signUp({email: email, password: pass}).then(res => {
+      if(res.error) alert("❌ Error: " + res.error.message);
+      else alert("🎉 Account created! Check your email or try logging in.");
+    });
   }
-}
 </script>
 
 </body>
