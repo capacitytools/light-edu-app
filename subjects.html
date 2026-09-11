@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#1E3A8A">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="logo.png">
+  <!-- Supabase Library -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -37,91 +38,107 @@
   </div>
 
   <div class="bottom-nav">
-    <a href="/dashboard.html" class="nav-btn"><span class="nav-icon"></span>Home</a>
+    <a href="/dashboard.html" class="nav-btn"><span class="nav-icon">🏠</span>Home</a>
     <a href="/learn.html" class="nav-btn active"><span class="nav-icon">📚</span>Learn</a>
     <a href="/cbt.html" class="nav-btn"><span class="nav-icon">⚡</span>CBT</a>
-    <a href="/ai.html" class="nav-btn"><span class="nav-icon">🤖</span>AI</a>
+    <a href="/ai.html" class="nav-btn"><span class="nav-icon"></span>AI</a>
     <a href="/profile.html" class="nav-btn"><span class="nav-icon">👤</span>Profile</a>
   </div>
 
   <script>
     const SUPABASE_URL = 'https://euffgftvbpntbbfibqtx.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1ZmZnZnR2YnBudGJiZmlicXR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMzk0NDQsImV4cCI6MjEwNDYxNTQ0NH0.LO7skAj0-OejT5nK1AV_0EMtv8k5VF4yQMRja26TiDQ';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1ZmZnZnR2YnBudGJiZmlicXR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMzk0NDQsImV4cCI6MjEwNDYxNTQ0NH0.LO7skAj0-OejT5nK1AV_0EMtv8k5VF4yQMRja26TiDQ';    
     const urlParams = new URLSearchParams(window.location.search);
     const className = urlParams.get('class') || 'SS1';
     document.getElementById('page-title').innerText = `${className} Subjects`;
 
-    async function loadSubjects() {
-      alert("Step 1: Looking for class '" + className + "'...");
+    // Wait for the page and the Supabase library to fully load
+    window.addEventListener('load', () => {
       const container = document.getElementById('subjects-container');
-      
-      try {
-        // 1. Get the class ID
-        const { data: classData, error: classError } = await supabase
-          .from('classes')
-          .select('id')
-          .eq('name', className)
-          .single();
 
-        if (classError) throw new Error("Class Error: " + classError.message);
-        alert("Step 2: Found Class ID: " + classData.id);
-
-        // 2. Find published notes
-        alert("Step 3: Searching 'notes' table for published lessons...");
-        const { data: notesData, error: notesError } = await supabase
-          .from('notes')
-          .select('subject_id')
-          .eq('class_id', classData.id)
-          .eq('status', 'published');
-
-        if (notesError) throw new Error("Notes Error: " + notesError.message);
-        alert("Step 4: Found " + (notesData ? notesData.length : 0) + " notes.");
-
-        const subjectIds = [...new Set((notesData || []).map(n => n.subject_id))];
-
-        if (subjectIds.length === 0) {
-          container.innerHTML = `<div class="empty"> No published notes for <strong>${className}</strong> yet.<br><br>Check back soon!</div>`;
-          return;
-        }
-
-        // 3. Fetch subjects
-        alert("Step 5: Fetching subject details...");
-        const { data: subjects, error: subjectsError } = await supabase
-          .from('subjects')
-          .select('id, name, slug, description, icon')
-          .in('id', subjectIds)
-          .order('sort_order');
-
-        if (subjectsError) throw new Error("Subjects Error: " + subjectsError.message);
-        alert("Step 6: SUCCESS! Found " + (subjects ? subjects.length : 0) + " subjects.");
-
-        container.innerHTML = '';         const defaultIcons = { 'Mathematics': '📐', 'Physics': '⚛️', 'Chemistry': '🧪', 'Biology': '', 'English': '📖' };
-
-        subjects.forEach(sub => {
-          const icon = sub.icon || defaultIcons[sub.name] || '📚';
-          const card = document.createElement('a');
-          card.className = 'subject-card';
-          card.href = `#`; 
-          card.onclick = (e) => { e.preventDefault(); alert("We will build the topics page next!"); };
-          
-          card.innerHTML = `
-            <div class="subject-icon">${icon}</div>
-            <div class="subject-info">
-              <div class="subject-name">${sub.name}</div>
-              ${sub.description ? `<div class="subject-desc">${sub.description}</div>` : ''}
-            </div>
-          `;
-          container.appendChild(card);
-        });
-
-      } catch (error) {
-        alert("CRITICAL FAILURE: " + error.message);
-        container.innerHTML = `<div class="error">⚠️ Error:<br>${error.message}</div>`;
+      // 1. CRITICAL CHECK: Did the Supabase library load?
+      if (!window.supabase) {
+        container.innerHTML = '<div class="error">⚠️ Supabase library failed to load.<br>Please check your internet connection and refresh.</div>';
+        return;
       }
-    }
 
-    loadSubjects();
+      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      // 2. Safety Timeout: If it takes more than 10 seconds, show an error
+      const timeout = setTimeout(() => {
+        if (container.innerHTML.includes('Loading')) {
+          container.innerHTML = '<div class="error">⚠️ Connection timed out.<br>The database is taking too long to respond.</div>';
+        }
+      }, 10000);
+
+      async function loadSubjects() {
+        try {
+          // 3. Get Class ID
+          const { data: classData, error: classError } = await supabase
+            .from('classes')
+            .select('id')
+            .eq('name', className)
+            .single();
+
+          if (classError) throw classError;
+
+          // 4. Find published notes for this class
+          const { data: notesData, error: notesError } = await supabase
+            .from('notes')
+            .select('subject_id')
+            .eq('class_id', classData.id)
+            .eq('status', 'published');
+
+          if (notesError) throw notesError;
+
+          const subjectIds = [...new Set((notesData || []).map(n => n.subject_id))];
+
+          // 5. Fetch subjects
+          let subjects = [];
+          if (subjectIds.length > 0) {
+            const { data: subs, error: subsError } = await supabase              .from('subjects')
+              .select('id, name, slug, description, icon')
+              .in('id', subjectIds)
+              .order('sort_order');
+            
+            if (subsError) throw subsError;
+            subjects = subs || [];
+          }
+
+          clearTimeout(timeout); // Stop the timeout timer
+
+          // 6. Display Results
+          if (subjects.length === 0) {
+            container.innerHTML = `<div class="empty">📭 No published notes for <strong>${className}</strong> yet.<br><br>Check back soon!</div>`;
+            return;
+          }
+
+          container.innerHTML = ''; // Clear loading text
+          const defaultIcons = { 'Mathematics': '📐', 'Physics': '⚛️', 'Chemistry': '🧪', 'Biology': '', 'English': '📖' };
+
+          subjects.forEach(sub => {
+            const icon = sub.icon || defaultIcons[sub.name] || '';
+            const card = document.createElement('div');
+            card.className = 'subject-card';
+            card.innerHTML = `
+              <div class="subject-icon">${icon}</div>
+              <div class="subject-info">
+                <div class="subject-name">${sub.name}</div>
+                ${sub.description ? `<div style="font-size:13px; color:#64748B; margin-top:4px;">${sub.description}</div>` : ''}
+              </div>
+            `;
+            container.appendChild(card);
+          });
+
+        } catch (error) {
+          clearTimeout(timeout);
+          container.innerHTML = `<div class="error">⚠️ Error:<br>${error.message}</div>`;
+          console.error(error);
+        }
+      }
+
+      loadSubjects();
+    });
   </script>
 </body>
 </html>
