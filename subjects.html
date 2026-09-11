@@ -26,8 +26,8 @@
     .subject-name { font-size: 16px; font-weight: bold; color: #1E3A8A; }
     .subject-desc { font-size: 13px; color: #64748B; margin-top: 4px; }
     
-    .loading, .error { text-align: center; padding: 40px 20px; color: #64748B; font-size: 15px; }
-    .error { color: #DC2626; background: #FEE2E2; border-radius: 12px; }
+    .loading, .error, .empty { text-align: center; padding: 40px 20px; color: #64748B; font-size: 15px; background: white; border-radius: 12px; }
+    .error { color: #DC2626; background: #FEE2E2; border: 1px solid #FCA5A5; }
 
     .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px 0 15px; border-top: 1px solid #E2E8F0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100; }
     .nav-btn { text-align: center; color: #94A3B8; text-decoration: none; font-size: 10px; flex: 1; }
@@ -38,7 +38,7 @@
 <body>
   <div class="header">
     <a href="learn.html" class="back-btn">←</a>
-    <h1 id="page-title">Subjects</h0>
+    <h1 id="page-title">Subjects</h1>
   </div>
 
   <div class="container" id="subjects-container">
@@ -66,16 +66,16 @@
       const container = document.getElementById('subjects-container');
       
       try {
-        // 1. Get the class ID
+        // 1. Get the class ID from the database
         const { data: classData, error: classError } = await supabase
           .from('classes')
           .select('id')
           .eq('name', className)
           .single();
 
-        if (classError || !classData) throw new Error("Class not found");
+        if (classError || !classData) throw new Error("Class not found in database.");
 
-        // 2. Find all unique subject_ids that have published notes for this class
+        // 2. Find all unique subject_ids that have PUBLISHED notes for this class
         const { data: notesData, error: notesError } = await supabase
           .from('notes')
           .select('subject_id')
@@ -84,41 +84,38 @@
 
         if (notesError) throw notesError;
 
+        // Extract unique subject IDs
         const subjectIds = [...new Set((notesData || []).map(n => n.subject_id))];
 
         if (subjectIds.length === 0) {
-          container.innerHTML = `<div class="loading">No published notes for ${className} yet. Check back soon!</div>`;
+          container.innerHTML = `<div class="empty"> No published notes for <strong>${className}</strong> yet.<br><br>Check back soon as we add new lessons!</div>`;
           return;
         }
 
-        // 3. Fetch the actual subject details
+        // 3. Fetch the actual subject details for those IDs
         const { data: subjects, error: subjectsError } = await supabase
           .from('subjects')
           .select('id, name, slug, description, icon')
-          .in('id', subjectIds)
-          .order('sort_order');
+          .in('id', subjectIds)          .order('sort_order');
+
         if (subjectsError) throw subjectsError;
 
-        container.innerHTML = ''; // Clear loading
+        container.innerHTML = ''; // Clear loading text
 
         if (!subjects || subjects.length === 0) {
-          container.innerHTML = `<div class="loading">No subjects found for ${className}.</div>`;
+          container.innerHTML = `<div class="empty">No subjects found for ${className}.</div>`;
           return;
         }
 
-        // Default icons map
-        const defaultIcons = { 'Mathematics': '📐', 'Physics': '⚛️', 'Chemistry': '🧪', 'Biology': '🧬', 'English': '📖' };
+        // Default icons map in case the database icon is null
+        const defaultIcons = { 'Mathematics': '📐', 'Physics': '️', 'Chemistry': '🧪', 'Biology': '🧬', 'English': '📖' };
 
         subjects.forEach(sub => {
           const icon = sub.icon || defaultIcons[sub.name] || '📚';
           const card = document.createElement('a');
           card.className = 'subject-card';
-          // For now, this is a placeholder link. We will build note.html next!
-          card.href = `#`; 
-          card.onclick = (e) => {
-            e.preventDefault();
-            alert(`Opening ${sub.name} for ${className}...\n(We will build the topics page next!)`);
-          };
+          // We will link this to the topics page next!
+          card.href = `topics.html?class=${encodeURIComponent(className)}&subject=${encodeURIComponent(sub.name)}`; 
           
           card.innerHTML = `
             <div class="subject-icon">${icon}</div>
@@ -132,7 +129,7 @@
         });
 
       } catch (error) {
-        container.innerHTML = `<div class="error">⚠️ Error:<br>${error.message}</div>`;
+        container.innerHTML = `<div class="error">⚠️ Error loading subjects:<br><strong>${error.message}</strong></div>`;
         console.error('Supabase Error:', error);
       }
     }
