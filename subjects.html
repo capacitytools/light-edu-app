@@ -6,7 +6,6 @@
   <meta name="theme-color" content="#1E3A8A">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="logo.png">
-  <!-- Supabase Library -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -15,7 +14,8 @@
     .back-btn { background: rgba(255,255,255,0.2); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; font-size: 18px; cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; }
     .header h1 { font-size: 20px; margin: 0; }
     .container { padding: 20px; }
-    .subject-card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 15px; text-decoration: none; color: #1E293B; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 15px; }
+    .subject-card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 15px; text-decoration: none; color: #1E293B; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 15px; transition: transform 0.2s; }
+    .subject-card:active { transform: scale(0.98); }
     .subject-icon { font-size: 28px; width: 50px; height: 50px; background: #F1F5F9; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
     .subject-info { flex: 1; }
     .subject-name { font-size: 16px; font-weight: bold; color: #1E3A8A; }
@@ -48,84 +48,63 @@
   <script>
     const SUPABASE_URL = 'https://euffgftvbpntbbfibqtx.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1ZmZnZnR2YnBudGJiZmlicXR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMzk0NDQsImV4cCI6MjEwNDYxNTQ0NH0.LO7skAj0-OejT5nK1AV_0EMtv8k5VF4yQMRja26TiDQ';    
-    const urlParams = new URLSearchParams(window.location.search);
-    const className = urlParams.get('class') || 'SS1';
-    document.getElementById('page-title').innerText = `${className} Subjects`;
-
-    // Wait for the page and the Supabase library to fully load
     window.addEventListener('load', () => {
-      const container = document.getElementById('subjects-container');
-
-      // 1. CRITICAL CHECK: Did the Supabase library load?
       if (!window.supabase) {
-        container.innerHTML = '<div class="error">⚠️ Supabase library failed to load.<br>Please check your internet connection and refresh.</div>';
+        document.getElementById('subjects-container').innerHTML = '<div class="error">⚠️ Supabase library failed to load.</div>';
         return;
       }
 
       const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      const urlParams = new URLSearchParams(window.location.search);
+      const className = urlParams.get('class') || 'SS1';
+      document.getElementById('page-title').innerText = `${className} Subjects`;
+      const container = document.getElementById('subjects-container');
 
-      // 2. Safety Timeout: If it takes more than 10 seconds, show an error
       const timeout = setTimeout(() => {
         if (container.innerHTML.includes('Loading')) {
-          container.innerHTML = '<div class="error">⚠️ Connection timed out.<br>The database is taking too long to respond.</div>';
+          container.innerHTML = '<div class="error">⚠️ Connection timed out.</div>';
         }
       }, 10000);
 
       async function loadSubjects() {
         try {
-          // 3. Get Class ID
-          const { data: classData, error: classError } = await supabase
-            .from('classes')
-            .select('id')
-            .eq('name', className)
-            .single();
-
+          const { data: classData, error: classError } = await supabase.from('classes').select('id').eq('name', className).single();
           if (classError) throw classError;
 
-          // 4. Find published notes for this class
-          const { data: notesData, error: notesError } = await supabase
-            .from('notes')
-            .select('subject_id')
-            .eq('class_id', classData.id)
-            .eq('status', 'published');
-
+          const { data: notesData, error: notesError } = await supabase.from('notes').select('subject_id').eq('class_id', classData.id).eq('status', 'published');
           if (notesError) throw notesError;
 
           const subjectIds = [...new Set((notesData || []).map(n => n.subject_id))];
-
-          // 5. Fetch subjects
           let subjects = [];
+          
           if (subjectIds.length > 0) {
-            const { data: subs, error: subsError } = await supabase              .from('subjects')
-              .select('id, name, slug, description, icon')
-              .in('id', subjectIds)
-              .order('sort_order');
-            
+            const { data: subs, error: subsError } = await supabase.from('subjects').select('id, name, slug, description, icon').in('id', subjectIds).order('sort_order');
             if (subsError) throw subsError;
             subjects = subs || [];
           }
 
-          clearTimeout(timeout); // Stop the timeout timer
+          clearTimeout(timeout);
 
-          // 6. Display Results
           if (subjects.length === 0) {
             container.innerHTML = `<div class="empty">📭 No published notes for <strong>${className}</strong> yet.<br><br>Check back soon!</div>`;
             return;
           }
 
-          container.innerHTML = ''; // Clear loading text
-          const defaultIcons = { 'Mathematics': '📐', 'Physics': '⚛️', 'Chemistry': '🧪', 'Biology': '', 'English': '📖' };
+          container.innerHTML = ''; 
+          const defaultIcons = { 'Mathematics': '📐', 'Physics': '️', 'Chemistry': '🧪', 'Biology': '', 'English': '📖' };
 
           subjects.forEach(sub => {
             const icon = sub.icon || defaultIcons[sub.name] || '';
-            const card = document.createElement('div');
-            card.className = 'subject-card';
+            const card = document.createElement('a');
+            card.className = 'subject-card';            // THIS IS THE FIX: Linking to the topics page!
+            card.href = `topics.html?class=${encodeURIComponent(className)}&subject=${encodeURIComponent(sub.name)}`; 
             card.innerHTML = `
               <div class="subject-icon">${icon}</div>
               <div class="subject-info">
                 <div class="subject-name">${sub.name}</div>
                 ${sub.description ? `<div style="font-size:13px; color:#64748B; margin-top:4px;">${sub.description}</div>` : ''}
               </div>
+              <span style="color: #94A3B8; font-size: 20px;">›</span>
             `;
             container.appendChild(card);
           });
@@ -133,10 +112,8 @@
         } catch (error) {
           clearTimeout(timeout);
           container.innerHTML = `<div class="error">⚠️ Error:<br>${error.message}</div>`;
-          console.error(error);
         }
       }
-
       loadSubjects();
     });
   </script>
