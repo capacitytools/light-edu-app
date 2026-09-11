@@ -14,31 +14,25 @@
     .header h1 { font-size: 24px; margin: 0; }
     .container { padding: 20px; }
     .section-title { font-size: 18px; font-weight: bold; color: #1E3A8A; margin-bottom: 15px; padding-left: 10px; border-left: 4px solid #DC2626; }
-    .class-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; }
+    .class-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
     .class-card { background: white; border-radius: 16px; padding: 20px 10px; text-align: center; text-decoration: none; color: white; font-weight: bold; font-size: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); display: flex; flex-direction: column; align-items: center; gap: 8px; }
     .ss1 { background: linear-gradient(135deg, #10B981 0%, #059669 100%); }
     .ss2 { background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); }
     .ss3 { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); }
-    .loading, .error { text-align: center; padding: 40px 20px; color: #64748B; font-size: 15px; background: white; border-radius: 12px; }
+    .loading, .error, .empty { text-align: center; padding: 40px 20px; color: #64748B; font-size: 15px; background: white; border-radius: 12px; }
     .error { color: #DC2626; background: #FEE2E2; border: 1px solid #FCA5A5; }
-    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px 0 15px; border-top: 1px solid #E2E8F0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100; }
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px 0 15px; border-top: 1px solid #E2E8F0; z-index: 100; }
     .nav-btn { text-align: center; color: #94A3B8; text-decoration: none; font-size: 10px; flex: 1; }
     .nav-btn.active { color: #1E3A8A; font-weight: bold; }
     .nav-icon { font-size: 22px; display: block; margin-bottom: 4px; }
   </style>
 </head>
 <body>
-  <div class="header">
-    <h1>📚 Choose Your Class</h1>
-  </div>
-
+  <div class="header"><h1>📚 Choose Your Class</h1></div>
   <div class="container">
     <div class="section-title">Available Classes</div>
-    <div id="classes-container" class="class-grid">
-      <div class="loading">⏳ Loading classes...</div>
-    </div>
+    <div id="classes-container" class="class-grid"><div class="loading">⏳ Loading...</div></div>
   </div>
-
   <div class="bottom-nav">
     <a href="/dashboard.html" class="nav-btn"><span class="nav-icon">🏠</span>Home</a>
     <a href="/learn.html" class="nav-btn active"><span class="nav-icon">📚</span>Learn</a>
@@ -46,60 +40,26 @@
     <a href="/ai.html" class="nav-btn"><span class="nav-icon">🤖</span>AI</a>
     <a href="/profile.html" class="nav-btn"><span class="nav-icon">👤</span>Profile</a>
   </div>
-
-  <script>    const SUPABASE_URL = 'https://euffgftvbpntbbfibqtx.supabase.co';
+  <script>
+    const SUPABASE_URL = 'https://euffgftvbpntbbfibqtx.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1ZmZnZnR2YnBudGJiZmlicXR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMzk0NDQsImV4cCI6MjEwNDYxNTQ0NH0.LO7skAj0-OejT5nK1AV_0EMtv8k5VF4yQMRja26TiDQ';
-
-    async function loadClasses() {
-      alert("Step 1: Starting connection to Supabase...");
-      
-      try {
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        alert("Step 2: Client created. Fetching 'classes' table...");
-        
-        const { data, error } = await supabase
-          .from('classes')
-          .select('id, name, display_name, sort_order')
-          .order('sort_order');
-
-        if (error) {
-          alert("DATABASE ERROR: " + error.message);
-          throw error;
-        }
-
-        alert("Step 3: SUCCESS! Found " + (data ? data.length : 0) + " classes.");
-        
-        const container = document.getElementById('classes-container');
-        container.innerHTML = ''; 
-
-        if (!data || data.length === 0) {
-          container.innerHTML = '<div class="error">No classes found in database yet.</div>';
-          return;
-        }
-
+    window.addEventListener('load', () => {
+      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      const container = document.getElementById('classes-container');
+      supabase.from('classes').select('id, name, display_name, sort_order').order('sort_order').then(({ data, error }) => {
+        if (error) { container.innerHTML = `<div class="error">️ ${error.message}</div>`; return; }
+        container.innerHTML = '';
+        if (!data || data.length === 0) { container.innerHTML = '<div class="empty">No classes found yet.</div>'; return; }
         data.forEach(cls => {
-          let colorClass = 'ss1';
-          if (cls.name === 'SS2') colorClass = 'ss2';
-          if (cls.name === 'SS3') colorClass = 'ss3';
-
+          let color = 'ss1'; if (cls.name === 'SS2') color = 'ss2'; if (cls.name === 'SS3') color = 'ss3';
           const card = document.createElement('a');
-          card.className = `class-card ${colorClass}`;
-          card.href = `subjects.html?class=${encodeURIComponent(cls.name)}`; 
-          
-          card.innerHTML = `
-            <span style="font-size: 32px;">🎓</span>
-            <span>${cls.name}</span>
-            <span style="font-size: 11px; font-weight: normal; opacity: 0.9;">${cls.display_name}</span>
-          `;
+          card.className = `class-card ${color}`;
+          card.href = `subjects.html?class=${encodeURIComponent(cls.name)}`;
+          card.innerHTML = `<span style="font-size: 32px;">🎓</span><span>${cls.name}</span><span style="font-size: 11px; font-weight: normal; opacity: 0.9;">${cls.display_name}</span>`;
           container.appendChild(card);
         });
-
-      } catch (error) {
-        alert("CRITICAL FAILURE: " + error.message);
-        document.getElementById('classes-container').innerHTML = `<div class="error">⚠️ Error:<br>${error.message}</div>`;      }
-    }
-
-    loadClasses();
+      });
+    });
   </script>
 </body>
 </html>
