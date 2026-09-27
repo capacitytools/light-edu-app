@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#1E3A8A">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="logo.png">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { background-color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; color: #1E293B; padding-bottom: 80px; }
@@ -32,7 +32,7 @@
   <div class="bottom-nav">
     <a href="/dashboard.html" class="nav-btn"><span class="nav-icon">🏠</span>Home</a>
     <a href="/learn.html" class="nav-btn active"><span class="nav-icon">📚</span>Learn</a>
-    <a href="/cbt.html" class="nav-btn"><span class="nav-icon"></span>CBT</a>
+    <a href="/cbt.html" class="nav-btn"><span class="nav-icon">⚡</span>CBT</a>
     <a href="/ai.html" class="nav-btn"><span class="nav-icon">🤖</span>AI</a>
     <a href="/profile.html" class="nav-btn"><span class="nav-icon">👤</span>Profile</a>
   </div>
@@ -50,16 +50,16 @@
       if (classError) { container.innerHTML = `<div class="error">⚠️ ${classError.message}</div>`; return; }
 
       const { data: notesData, error: notesError } = await supabase.from('notes').select('subject_id').eq('class_id', classData.id).eq('status', 'published');
-      if (notesError) { container.innerHTML = `<div class="error">️ ${notesError.message}</div>`; return; }
+      if (notesError) { container.innerHTML = `<div class="error">⚠️ ${notesError.message}</div>`; return; }
 
       const subjectIds = [...new Set((notesData || []).map(n => n.subject_id))];
-      if (subjectIds.length === 0) { container.innerHTML = `<div class="empty"> No published notes for <strong>${className}</strong> yet.</div>`; return; }
+      if (subjectIds.length === 0) { container.innerHTML = `<div class="empty">📭 No published notes for <strong>${className}</strong> yet.</div>`; return; }
 
       const { data: subjects, error: subsError } = await supabase.from('subjects').select('id, name, slug, description, icon').in('id', subjectIds).order('sort_order');
       if (subsError) { container.innerHTML = `<div class="error">⚠️ ${subsError.message}</div>`; return; }
 
       container.innerHTML = '';
-      const defaultIcons = { 'Mathematics': '📐', 'Physics': '️', 'Chemistry': '🧪', 'Biology': '🧬', 'English': '📖' };
+      const defaultIcons = { 'Mathematics': '📐', 'Physics': '⚛️', 'Chemistry': '🧪', 'Biology': '🧬', 'English': '' };
       subjects.forEach(sub => {
         const icon = sub.icon || defaultIcons[sub.name] || '📚';
         const card = document.createElement('a');
